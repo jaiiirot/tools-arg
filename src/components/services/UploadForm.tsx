@@ -12,6 +12,10 @@ export const UploadForm = ({ serviceId, serviceName }: { serviceId: string, serv
 
   const handleExecute = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    
+    // [CRÍTICO]: Guardamos la referencia en memoria síncrona antes de los awaits
+    const formElement = e.currentTarget;
+
     if (!user) {
       addLog('[ERROR] Protocolo rechazado: Sesión no válida.');
       return;
@@ -20,33 +24,35 @@ export const UploadForm = ({ serviceId, serviceName }: { serviceId: string, serv
     setIsUploading(true);
     addLog(`[SISTEMA] Iniciando compresión de comprobante...`);
     
-    const formData = new FormData(e.currentTarget);
+    // Usamos formElement en lugar de e.currentTarget
+    const formData = new FormData(formElement);
     formData.append('userEmail', user.email || 'unknown');
     
     try {
-      // 1. Enviar imagen al Backend (Astro -> Sharp -> Cloudinary)
       const res = await fetch('/api/upload', { method: 'POST', body: formData });
       const data = await res.json();
 
       if (res.ok && data.url) {
         addLog('[SISTEMA] Archivo optimizado y alojado. Generando orden en DB...');
         
-        // 2. Registrar la orden en Firestore
         await addDoc(collection(db, 'orders'), {
           serviceId,
           serviceName,
           userEmail: user.email,
-          receiptUrl: data.url, // La URL que nos devolvió Cloudinary
+          receiptUrl: data.url,
           status: 'PENDING',
           createdAt: serverTimestamp()
         });
 
         addLog(`[ÉXITO] Orden consolidada con éxito.`);
-        e.currentTarget.reset();
+        
+        // Limpiamos los inputs usando la referencia almacenada en RAM
+        formElement.reset();
       } else {
         addLog(`[ERROR] ${data.error || 'Paquete rechazado.'}`);
       }
     } catch (err) {
+      console.error("[FIRESTORE_DEBUG] Error al guardar orden:", err);
       addLog('[FATAL] Conexión interrumpida con el clúster.');
     } finally {
       setIsUploading(false);
