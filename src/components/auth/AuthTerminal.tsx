@@ -17,7 +17,6 @@ export const AuthTerminal = () => {
   const { setUser, setInitialized } = useAuthStore();
   const addLog = useSystemStore((state) => state.addLog);
 
-  // Escuchador global de la sesión de Firebase
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
@@ -36,15 +35,42 @@ export const AuthTerminal = () => {
     addLog(`> Ejecutando script de ${isLoginMode ? 'autenticación' : 'registro'}...`);
 
     try {
+      // Usamos .trim() para evitar errores 400 por espacios accidentales en el email
+      const safeEmail = email.trim(); 
+
       if (isLoginMode) {
-        await signInWithEmailAndPassword(auth, email, password);
+        await signInWithEmailAndPassword(auth, safeEmail, password);
         addLog('> [SUCCESS] Credenciales aceptadas.');
       } else {
-        await createUserWithEmailAndPassword(auth, email, password);
-        addLog('> [SUCCESS] Nuevo usuario encriptado y registrado en la base de datos.');
+        await createUserWithEmailAndPassword(auth, safeEmail, password);
+        addLog('> [SUCCESS] Nuevo usuario encriptado y registrado.');
       }
     } catch (error: any) {
-      addLog(`> [ERROR_CRÍTICO] Acceso denegado: ${error.message}`);
+      // Traducción de códigos 400 de Firebase a mensajes de sistema CLI
+      let systemErrorMsg = error.message;
+      
+      switch (error.code) {
+        case 'auth/invalid-credential':
+        case 'auth/user-not-found':
+        case 'auth/wrong-password':
+          systemErrorMsg = "Credenciales inválidas o entidad no registrada.";
+          break;
+        case 'auth/invalid-email':
+          systemErrorMsg = "El formato del identificador (email) es corrupto.";
+          break;
+        case 'auth/email-already-in-use':
+          systemErrorMsg = "Este identificador ya existe en la base de datos.";
+          break;
+        case 'auth/weak-password':
+          systemErrorMsg = "La keyphrase es demasiado débil (mínimo 6 caracteres).";
+          break;
+        case 'auth/operation-not-allowed':
+          systemErrorMsg = "Proveedor Email/Password DESHABILITADO en consola Firebase.";
+          break;
+      }
+
+      addLog(`> [ERROR_CRÍTICO] ${systemErrorMsg}`);
+      console.error("[FIREBASE_DEBUG]:", error);
     } finally {
       setIsProcessing(false);
     }
@@ -117,8 +143,8 @@ export const AuthTerminal = () => {
             className="text-xs text-console-gray hover:text-console-white transition-colors"
           >
             {isLoginMode 
-              ? '> ¿No tienes acceso? Solicitar credenciales (Registrarse)' 
-              : '> ¿Ya tienes protocolo de acceso? Iniciar Sesión'}
+                ? <>{">"} ¿No tienes acceso? Solicitar credenciales (Registrarse)</> 
+                : <>{">"} ¿Ya tienes protocolo de acceso? Iniciar Sesión</>}
           </button>
         </div>
       </div>

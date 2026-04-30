@@ -29,7 +29,7 @@ export const ServiceGrid = ({ initialServices }: Props) => {
       </div>
 
       <div className="mb-2">
-        <p className="text-xs text-console-gray">> Coincidencias encontradas: <span className="text-console-green">{filteredServices.length}</span></p>
+        <p className="text-xs text-console-gray">{">"} Coincidencias encontradas: <span className="text-console-green">{filteredServices.length}</span></p>
       </div>
 
       {/* Grid de resultados */}

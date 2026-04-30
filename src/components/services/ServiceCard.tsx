@@ -15,7 +15,6 @@ export const ServiceCard = ({ id, name, price, time }: ServiceItem) => {
     const formData = new FormData(e.currentTarget);
     
     try {
-      // Simulación de llamada a nuestro endpoint /api/upload
       const response = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
@@ -38,7 +37,8 @@ export const ServiceCard = ({ id, name, price, time }: ServiceItem) => {
       <div className="mb-4">
         <div className="flex justify-between items-start mb-2 border-b border-console-gray pb-2">
           <h3 className="font-bold text-console-white group-hover:text-console-green transition-colors text-sm">
-            > {name}
+            {/* ESCAPADO AQUÍ */}
+            {">"} {name}
           </h3>
           <span className="text-[10px] bg-console-gray text-console-white px-2 py-1 rounded whitespace-nowrap ml-2">
             {time}

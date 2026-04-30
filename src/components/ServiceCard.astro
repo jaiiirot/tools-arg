@@ -1,0 +1,19 @@
+---
+const { name, time, price, img } = Astro.props;
+---
+<div class="border border-hacker-green p-4 relative group hover:bg-[#00ff0011] transition-all duration-300">
+  <div class="absolute top-0 right-0 bg-hacker-green text-hacker-bg text-xs px-2 font-bold">
+    {time}
+  </div>
+  <img src={img} alt={name} class="w-full h-40 object-cover border-b border-hacker-green mb-4 opacity-80 group-hover:opacity-100 grayscale group-hover:grayscale-0 transition-all" />
+  
+  <h3 class="text-lg text-hacker-green font-bold mb-2">{">"} {name}</h3>
+  <p class="text-hacker-white text-sm mb-4">Costo: {price}</p>
+  
+  <form action="/api/upload" method="POST" enctype="multipart/form-data" class="mt-4 border-t border-dashed border-hacker-green pt-4">
+    <label class="block text-xs mb-1 text-hacker-green">~/subir_comprobante.sh</label>
+    <input type="file" name="receipt" required class="text-xs mb-2 w-full text-hacker-white file:mr-4 file:py-1 file:px-2 file:border-0 file:text-hacker-bg file:bg-hacker-green hover:file:bg-hacker-white" />
+    <input type="hidden" name="serviceName" value={name} />
+    <button type="submit" class="w-full bg-hacker-green text-hacker-bg font-bold py-1 hover:bg-hacker-white transition-colors">[ EJECUTAR PAGO ]</button>
+  </form>
+</div>

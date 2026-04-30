@@ -37,11 +37,12 @@ export const Sidebar = () => {
       <div className="border border-console-gray bg-[#353534] p-4">
         <h2 className="text-sm font-bold border-b border-console-gray text-console-white pb-2 mb-3">~ /bin/menu</h2>
         <ul className="text-xs space-y-3 text-console-gray">
-          <li className="hover:text-console-green cursor-pointer transition-colors">> ./hacer_pedido.sh</li>
-          <li className="hover:text-console-green cursor-pointer transition-colors">> ./historial_ordenes.sh</li>
-          <li className="hover:text-console-green cursor-pointer transition-colors">> ./soporte_tickets.sh</li>
+          {/* ESCAPAMOS EL CARÁCTER '>' CON {">"} PARA EVITAR ERRORES DE JSX */}
+          <li className="hover:text-console-green cursor-pointer transition-colors">{">"} ./hacer_pedido.sh</li>
+          <li className="hover:text-console-green cursor-pointer transition-colors">{">"} ./historial_ordenes.sh</li>
+          <li className="hover:text-console-green cursor-pointer transition-colors">{">"} ./soporte_tickets.sh</li>
           {/* Comando EXIT funcional */}
-          <li onClick={handleLogout} className="hover:text-red-500 cursor-pointer transition-colors mt-4 pt-2 border-t border-console-gray">> exit()</li>
+          <li onClick={handleLogout} className="hover:text-red-500 cursor-pointer transition-colors mt-4 pt-2 border-t border-console-gray">{">"} exit()</li>
         </ul>
       </div>
 
