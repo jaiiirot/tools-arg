@@ -1,0 +1,46 @@
+---
+import type { ServiceItem } from '../../services/services.service';
+
+interface Props extends ServiceItem {}
+
+const { id, name, price, time } = Astro.props;
+---
+
+<article class="terminal-card flex flex-col justify-between h-full group">
+  <div class="mb-4">
+    <div class="flex justify-between items-start mb-2 border-b border-console-gray pb-2">
+      <h3 class="font-bold text-console-white group-hover:text-console-green transition-colors text-sm">
+        > {name}
+      </h3>
+      <span class="text-[10px] bg-console-gray text-console-white px-2 py-1 rounded whitespace-nowrap ml-2">
+        {time}
+      </span>
+    </div>
+    
+    <div class="mt-4">
+      <p class="text-xs text-console-gray">> Costo de ejecución:</p>
+      <p class="font-bold text-console-green text-lg">{price}</p>
+    </div>
+  </div>
+  
+  <!-- Formulario de subida de comprobante -->
+  <form action="/api/upload" method="POST" enctype="multipart/form-data" class="mt-auto border-t border-dashed border-console-gray pt-4 flex flex-col gap-3">
+    <input type="hidden" name="serviceId" value={id} />
+    <input type="hidden" name="serviceName" value={name} />
+    
+    <div class="flex flex-col gap-1">
+      <label class="text-[10px] text-console-white">~/adjuntar_comprobante.jpg</label>
+      <input 
+        type="file" 
+        name="receipt" 
+        accept="image/jpeg, image/png, image/webp"
+        required 
+        class="text-[10px] w-full text-console-gray file:mr-2 file:py-1 file:px-2 file:border-0 file:bg-console-green file:text-console-bg hover:file:bg-console-white file:cursor-pointer file:transition-colors file:font-bold" 
+      />
+    </div>
+
+    <button type="submit" class="btn-execute w-full text-center">
+      [ EJECUTAR PAGO ]
+    </button>
+  </form>
+</article>

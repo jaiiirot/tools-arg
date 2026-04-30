@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+@theme {
+  --color-console-bg: #3C3C3B;
+  --color-console-green: #00FF00;
+  --color-console-white: #FFFFFF;
+  --color-console-gray: #4d4d4b;
+  --color-console-darker: #2a2a29;
+  
+  --font-mono: "Fira Code", "JetBrains Mono", monospace;
+  
+  --animate-pulse-slow: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-blink: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@layer base {
+  body {
+    @apply bg-console-bg text-console-white font-mono min-h-screen selection:bg-console-green selection:text-console-bg;
+    background-image: 
+      linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%),
+      linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+    background-size: 100% 3px, 3px 100%;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* Efecto de resplandor de pantalla (Glow) */
+  body::after {
+    content: " ";
+    display: block;
+    position: fixed;
+    top: 0; left: 0; bottom: 0; right: 0;
+    background: radial-gradient(circle, rgba(0, 255, 0, 0.03) 0%, rgba(0, 0, 0, 0) 80%);
+    pointer-events: none;
+    z-index: 9999;
+  }
+}
+
+@layer components {
+  .terminal-border {
+    @apply border border-console-gray bg-console-darker/50 backdrop-blur-sm shadow-[0_0_15px_rgba(0,0,0,0.5)];
+  }
+  
+  .terminal-input {
+    @apply bg-transparent border-b border-console-gray focus:border-console-green outline-none text-console-green py-1 px-2 transition-all;
+  }
+
+  .btn-terminal {
+    @apply border border-console-green text-console-green px-4 py-1 hover:bg-console-green hover:text-console-bg transition-all font-bold uppercase tracking-tighter disabled:opacity-50 disabled:pointer-events-none;
+  }
+}

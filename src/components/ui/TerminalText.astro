@@ -1,0 +1,12 @@
+---
+interface Props {
+  prefix?: string;
+  text: string;
+}
+const { prefix = "root@toolsArg:~#", text } = Astro.props;
+---
+<div class="font-mono text-console-white flex items-center">
+  <span class="text-console-green font-bold mr-2">{prefix}</span>
+  <span class="font-bold text-lg">{text}</span>
+  <span class="inline-block w-2.5 h-5 bg-console-green ml-1 animate-blink"></span>
+</div>

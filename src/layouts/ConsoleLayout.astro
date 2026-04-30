@@ -1,0 +1,43 @@
+---
+import '../assets/styles/global.css';
+import { SITE_CONFIG } from '../config/site.config';
+
+interface Props {
+	title: string;
+}
+const { title } = Astro.props;
+---
+<!doctype html>
+<html lang="es">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width" />
+		<title>{title} | {SITE_CONFIG.name}</title>
+	</head>
+	<body class="p-4 md:p-8 max-w-7xl mx-auto">
+		<header class="mb-8 border-b border-console-gray pb-4 flex justify-between items-center">
+			<div>
+				<div class="text-console-green font-bold text-xl tracking-tighter">
+					{SITE_CONFIG.author} <span class="text-console-white">/</span> {title.toLowerCase()}
+				</div>
+				<div class="text-[10px] text-console-gray font-mono mt-1">
+					SYSTEM_VERSION: {SITE_CONFIG.version} | STATUS: <span class="text-console-green animate-pulse">OPERATIONAL</span>
+				</div>
+			</div>
+			<nav class="hidden md:block">
+				<code class="text-xs text-console-gray group cursor-pointer hover:text-console-green">
+					[ <span class="text-console-white">Uptime:</span> 99.9% ]
+				</code>
+			</nav>
+		</header>
+
+		<main>
+			<slot />
+		</main>
+
+		<footer class="mt-12 pt-4 border-t border-console-gray text-[10px] text-console-gray flex justify-between">
+			<div>&copy; 2026 {SITE_CONFIG.name} // SESSION_ENCRYPTED: TRUE</div>
+			<div class="hover:text-console-green cursor-help">HELP? TYPE --HELP</div>
+		</footer>
+	</body>
+</html>
