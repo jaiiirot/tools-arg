@@ -1,61 +1,26 @@
 ---
 import ConsoleLayout from '../../layouts/ConsoleLayout.astro';
-import ServiceCard from '../../components/services/ServiceCard.astro';
+import { Sidebar } from '../../components/dashboard/Sidebar';
+import { ServiceGrid } from '../../components/dashboard/ServiceGrid';
+import { ProtectedRoute } from '../../components/auth/ProtectedRoute';
 import { getAvailableServices } from '../../services/services.service';
 
-// Obtenemos los servicios desde nuestra capa de lógica
 const services = await getAvailableServices();
 ---
 
-<ConsoleLayout title="toolsArg | Área de Cliente">
-  <header class="mb-8 flex justify-between items-end border-b border-console-gray pb-4">
-    <div>
-      <h1 class="text-3xl font-bold tracking-widest"><span class="text-console-white">root@toolsArg</span>:~#<span class="animate-pulse text-console-green">_</span></h1>
-      <p class="text-xs mt-2 text-console-gray">> Acceso Autorizado // Nivel: Usuario</p>
-    </div>
-    <div class="text-xs text-right hidden md:block">
-      <p>> Estado de conexión: <span class="text-console-green animate-pulse">ESTABLE</span></p>
-      <p>> Encriptación: Activa</p>
-    </div>
-  </header>
-
-  <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-    
-    <!-- Barra lateral del sistema -->
-    <aside class="md:col-span-1 space-y-6">
-      <div class="border border-console-gray p-4 bg-[#353534]">
-        <h2 class="text-sm font-bold border-b border-console-gray text-console-green pb-2 mb-3">~/menu_principal</h2>
-        <ul class="text-sm space-y-3 text-console-white">
-          <li class="hover:text-console-green cursor-pointer transition-colors">> Hacer un pedido</li>
-          <li class="hover:text-console-green cursor-pointer transition-colors">> Historial de compras</li>
-          <li class="hover:text-console-green cursor-pointer transition-colors">> Mis tickets</li>
-          <li class="hover:text-red-500 cursor-pointer transition-colors mt-4 pt-2 border-t border-console-gray">> Cerrar sesión</li>
-        </ul>
-      </div>
-
-      <div class="border border-console-gray p-4 bg-[#353534]">
-        <h2 class="text-sm font-bold border-b border-console-gray text-console-green pb-2 mb-3">~/instrucciones</h2>
-        <p class="text-xs text-console-gray leading-relaxed">
-          1. Selecciona el servicio requerido.<br/><br/>
-          2. Adjunta captura de tu comprobante de pago.<br/><br/>
-          3. El sistema comprimirá la imagen y generará una orden para el administrador.
-        </p>
-      </div>
-    </aside>
-
-    <!-- Cuadrícula de servicios -->
-    <main class="md:col-span-3">
-      <div class="mb-6 border-l-2 border-console-green pl-3">
-        <h2 class="text-lg font-bold text-console-white">./listar_servicios.sh</h2>
-        <p class="text-xs text-console-gray">Filtrando por: <span class="text-console-green">Horas, Meses, Años</span></p>
-      </div>
+<ConsoleLayout title="Área de Cliente">
+  <!-- El guardián bloqueará el renderizado si no hay sesión activa -->
+  <ProtectedRoute client:only="react">
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
       
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {services.map(service => (
-          <ServiceCard {...service} />
-        ))}
+      <div class="lg:col-span-1">
+        <Sidebar client:load />
       </div>
-    </main>
 
-  </div>
+      <main class="lg:col-span-3">
+        <ServiceGrid client:load initialServices={services} />
+      </main>
+
+    </div>
+  </ProtectedRoute>
 </ConsoleLayout>

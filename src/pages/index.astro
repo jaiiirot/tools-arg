@@ -1,76 +1,39 @@
 ---
 import ConsoleLayout from '../layouts/ConsoleLayout.astro';
-// En un proyecto real, esto vendría de src/services/services.service.ts
-const services = [
-  { id: 1, name: "UnlockTool Licencia (3 Meses)", category: "unlock", price: "$17.70", time: "1-3 Horas" },
-  { id: 2, name: "E-GSM Tool Activación (1 Año)", category: "software", price: "$51.60", time: "3 Horas" },
-  { id: 3, name: "HelloAio Tool (6 Meses)", category: "software", price: "$24.70", time: "6 Meses" },
-];
+import { AuthTerminal } from '../components/auth/AuthTerminal';
+import { Sidebar } from '../components/dashboard/Sidebar'; // Reutilizamos el panel de logs de la V2
 ---
 
-<ConsoleLayout title="toolsArg | Dashboard">
-  <header class="mb-8 flex justify-between items-end border-b border-console-gray pb-4">
-    <div>
-      <h1 class="text-3xl font-bold tracking-widest"><span class="text-console-white">tools</span>Arg<span class="animate-pulse">_</span></h1>
-      <p class="text-sm mt-2 text-console-gray">v2.0 // Client Area // Locked</p>
-    </div>
-    <div class="text-xs text-right hidden md:block">
-      <p>Status: <span class="text-console-green">Online</span></p>
-      <p>Server: Operational</p>
-    </div>
-  </header>
-
-  <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+<ConsoleLayout title="Portal de Acceso">
+  <div class="min-h-[80vh] flex flex-col md:flex-row items-center justify-center gap-8">
     
-    <aside class="md:col-span-1 space-y-6">
-      <div class="border border-console-gray p-4 bg-[#353534]">
-        <h2 class="text-sm font-bold border-b border-console-gray pb-2 mb-3">~ /overview</h2>
-        <ul class="text-sm space-y-2 text-console-white">
-          <li class="hover:text-console-green cursor-pointer">> Place an order</li>
-          <li class="hover:text-console-green cursor-pointer">> Order History</li>
-          <li class="hover:text-console-green cursor-pointer">> Settings</li>
-        </ul>
-      </div>
-
-      <div class="border border-console-gray p-4 bg-[#353534]">
-        <h2 class="text-sm font-bold border-b border-console-gray pb-2 mb-3">~ /system_info</h2>
-        <p class="text-xs text-console-gray leading-relaxed">
-          Bienvenido al panel. Selecciona el servicio deseado, adjunta tu comprobante de pago en formato de imagen, y el backend procesará y comprimirá el archivo automáticamente.
+    <!-- Lado Izquierdo: Terminal interactiva de Auth -->
+    <main class="w-full md:w-1/2">
+      <div class="mb-8 text-center md:text-left">
+        <h1 class="text-4xl font-bold tracking-widest mb-2">
+          <span class="text-console-white">tools</span>Arg<span class="text-console-green animate-blink">_</span>
+        </h1>
+        <p class="text-xs text-console-gray font-mono">
+          > ACCESO RESTRINGIDO // SOLO DISTRIBUIDORES AUTORIZADOS
         </p>
       </div>
-    </aside>
-
-    <main class="md:col-span-3">
-      <h2 class="text-lg font-bold mb-4 flex items-center gap-2">
-        <span class="text-console-white">#</span> servicios_disponibles
-      </h2>
       
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {services.map(service => (
-          <article class="border border-console-gray p-4 bg-[#353534] hover:border-console-green transition-colors group">
-            <div class="flex justify-between items-start mb-4">
-              <h3 class="font-bold text-console-white group-hover:text-console-green transition-colors">> {service.name}</h3>
-              <span class="text-xs bg-console-gray text-console-white px-2 py-1 rounded">{service.time}</span>
-            </div>
-            
-            <div class="flex justify-between items-end">
-              <div>
-                <p class="text-xs text-console-gray">Price:</p>
-                <p class="font-bold text-console-green">{service.price}</p>
-              </div>
-              
-              <form action="/api/upload" method="POST" enctype="multipart/form-data" class="flex flex-col items-end gap-2">
-                <input type="hidden" name="serviceId" value={service.id} />
-                <input type="file" name="receipt" required class="text-[10px] w-full max-w-[180px]" />
-                <button type="submit" class="text-xs border border-console-green text-console-green px-3 py-1 hover:bg-console-green hover:text-console-bg transition-colors">
-                  [ SUBIR PAGO ]
-                </button>
-              </form>
-            </div>
-          </article>
-        ))}
-      </div>
+      <AuthTerminal client:load />
     </main>
+
+    <!-- Lado Derecho: Monitor de Sistema (Reutilizado del dashboard para consistencia visual) -->
+    <aside class="w-full md:w-1/3 hidden md:block opacity-70">
+      <div class="border border-console-gray bg-[#1a1a19] p-4 h-96 flex flex-col">
+        <h2 class="text-[10px] font-bold text-console-gray mb-2 uppercase">System_Logs // Boot Sequence</h2>
+        <!-- Aquí podríamos aislar solo la parte de logs de la Sidebar, pero para el prototipo usamos un contenedor estático o un componente de logs dedicado -->
+        <div class="flex-1 overflow-y-auto text-[10px] font-mono text-console-green space-y-2 pr-2" id="boot-logs">
+          <p>> Inicializando protocolos de seguridad...</p>
+          <p>> Cargando Firebase Auth (Capa Gratuita)...</p>
+          <p>> Estado: <span class="text-console-white">ESPERANDO CREDENCIALES</span></p>
+          <p class="animate-blink">_</p>
+        </div>
+      </div>
+    </aside>
 
   </div>
 </ConsoleLayout>
