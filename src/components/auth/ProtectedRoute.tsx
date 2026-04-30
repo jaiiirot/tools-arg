@@ -1,19 +1,36 @@
-import { useEffect } from 'react';
-import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from '../../lib/firebase';
-import { useAuthStore } from '../../store/authStore';
+import { useEffect } from "react";
+import { onAuthStateChanged } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
+import { auth, db } from "../../lib/firebase";
+import { useAuthStore } from "../../store/authStore";
 
 interface Props {
   children: React.ReactNode;
 }
 
 export const ProtectedRoute = ({ children }: Props) => {
-  const { isInitialized, isAuthenticated, setUser, setInitialized } = useAuthStore();
+  const { isInitialized, isAuthenticated, setUser, setInitialized } =
+    useAuthStore();
 
   useEffect(() => {
     // Al entrar a una ruta protegida, interceptamos la caché de Firebase
     // para restaurar la sesión en Zustand (ya que Astro limpia la memoria al cambiar de URL).
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (!currentUser) {
+        setUser(null as any);
+        setInitialized(true);
+        return;
+      }
+
+      const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+      let profile = userDoc.exists() ? userDoc.data() : {};
+
+      // REGLA DE ORO: El dueño nunca pierde el acceso
+      if (currentUser.email === "jhon.jairo.tumiri@gmail.com") {
+        profile = { ...profile, role: "ROOT", status: "APPROVED" };
+      }
+
+      (currentUser as any).profile = profile;
       setUser(currentUser);
       setInitialized(true);
     });
@@ -24,7 +41,7 @@ export const ProtectedRoute = ({ children }: Props) => {
   useEffect(() => {
     // Si ya inicializó y descubrió que eres un intruso, te expulsa al inicio.
     if (isInitialized && !isAuthenticated) {
-      window.location.href = '/';
+      window.location.href = "/";
     }
   }, [isInitialized, isAuthenticated]);
 

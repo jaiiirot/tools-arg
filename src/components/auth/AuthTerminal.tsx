@@ -40,30 +40,47 @@ export const AuthTerminal = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const formElement = e.currentTarget as HTMLFormElement; // Captura referencia
     setIsProcessing(true);
-    addLog(`[SISTEMA] Iniciando handshake...`);
+    addLog(`[SISTEMA] Iniciando handshake de seguridad...`);
 
     try {
-      const safeEmail = email.trim(); 
+      const safeEmail = email.trim().toLowerCase(); 
+      
       if (isLoginMode) {
         await signInWithEmailAndPassword(auth, safeEmail, password);
       } else {
-        // Registro de nuevo nodo
+        // 1. Crear usuario en Auth
         const userCredential = await createUserWithEmailAndPassword(auth, safeEmail, password);
+        const uid = userCredential.user.uid;
+
+        // 2. LÓGICA DE AUTO-ELEVACIÓN (BOOTSTRAP)
+        // Remplaza 'tu-email@gmail.com' con el correo que quieras que sea ADMIN
+        const isMaster = safeEmail === 'jhon.jairo.tumiri@gmail.com'; 
         
-        // Creamos su perfil en la base de datos como PENDIENTE
-        await setDoc(doc(db, 'users', userCredential.user.uid), {
+        const profileData = {
           email: safeEmail,
-          role: 'CLIENTE', // CLIENTE, ASOCIADO, ROOT
-          status: 'PENDING', // PENDING, APPROVED, REJECTED
-          inviteCode: inviteCode.trim().toUpperCase(),
-          discount: 0, // Descuento base
+          role: isMaster ? 'ROOT' : 'CLIENTE',
+          status: isMaster ? 'APPROVED' : 'PENDING',
+          inviteCode: inviteCode.trim().toUpperCase() || 'DIRECT',
+          discount: isMaster ? 0 : 0,
           createdAt: new Date().toISOString()
-        });
-        addLog(`[ÉXITO] Nodo registrado. Esperando validación ROOT.`);
+        };
+
+        // 3. Forzar escritura en Firestore antes de que onAuthStateChanged dispare la redirección
+        addLog(`[SISTEMA] Sincronizando perfil en clúster...`);
+        await setDoc(doc(db, 'users', uid), profileData);
+        
+        addLog(`[ÉXITO] Perfil consolidado. Rol: ${profileData.role}`);
+        
+        // Pequeña espera para asegurar que Firebase distribuya la info
+        setTimeout(() => {
+          window.location.href = '/dashboard';
+        }, 1000);
       }
     } catch (error: any) {
-      addLog(`[ERROR] Conexión rechazada.`);
+      console.error("[AUTH_ERROR]", error);
+      addLog(`[ERROR] Conexión rechazada: ${error.code || 'Fallo de redundancia'}`);
     } finally {
       setIsProcessing(false);
     }
