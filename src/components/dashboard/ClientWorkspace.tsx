@@ -18,6 +18,7 @@ export const ClientWorkspace = ({ initialServices }: Props) => {
   const [myOrders, setMyOrders] = useState<any[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
 
+  const userProfile = (user as any)?.profile;
   useEffect(() => {
     if (clientTab === 'history' && user?.email) {
       setLoadingHistory(true);
@@ -40,6 +41,17 @@ export const ClientWorkspace = ({ initialServices }: Props) => {
     }
   }, [clientTab, user]);
 
+  if (userProfile?.status !== 'APPROVED' && userProfile?.role !== 'ROOT') {
+    return (
+      <Box className="min-h-[50vh] flex flex-col items-center justify-center text-center p-8 border-[#ff9900]">
+        <h2 className="text-[#ff9900] text-xl font-bold uppercase tracking-widest mb-4">ACCESO RESTRINGIDO</h2>
+        <p className="text-sys-muted text-sm max-w-md">
+          Su cuenta se encuentra en estado <span className="text-sys-text font-bold">PENDING</span>. 
+          Un administrador debe aprobar su nodo antes de poder visualizar el catálogo de servicios en ARS y operar en la plataforma.
+        </p>
+      </Box>
+    );
+  }
   return (
     <>
       {clientTab === 'catalog' && (
