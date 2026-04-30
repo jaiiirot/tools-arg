@@ -16,7 +16,7 @@ export const useSystemStore = create<SystemState>((set, get) => ({
   logs: ['> Iniciando sesión segura...', '> Conexión establecida.'],
   balance: 0.00,
   clientTab: 'catalog',
-  dolarRate: 1000, // Valor fallback
+  dolarRate: 1500, // Valor fallback
   setClientTab: (tab) => set({ clientTab: tab }),
   addLog: (msg) => set((state) => ({ logs: [...state.logs.slice(-49), msg] })),
   clearLogs: () => set({ logs: [] }),

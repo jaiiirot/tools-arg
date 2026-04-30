@@ -60,7 +60,7 @@ export const ProtectedRoute = ({ children }: Props) => {
   }
 
   // Si no estás autenticado (pantalla de 1 milisegundo antes de la redirección)
-  if (!isAuthenticated) {
+  if (!isAuthenticated ) {
     return (
       <div className="w-full flex flex-col items-center justify-center min-h-[50vh] border border-red-900 bg-[#1a1a19] p-8">
         <div className="text-red-500 font-bold text-lg mb-4">
