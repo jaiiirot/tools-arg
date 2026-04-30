@@ -1,16 +1,16 @@
 import type { APIRoute } from 'astro';
-import clientPromise from '../../lib/mongodb';
+import dbConnect from '../../lib/mongoose';
+import Service from '../../models/Service';
 import { processServiceData } from '../../services/data-filter.service';
 
 export const GET: APIRoute = async () => {
   try {
-    const client = await clientPromise;
-    const db = client.db('toolsArg');
-    // Obtenemos todos los servicios de la base de datos
-    const services = await db.collection('services').find({}).toArray();
+    await dbConnect();
+    // Mongoose trae los datos de forma estructurada
+    const services = await Service.find({}).sort({ createdAt: -1 });
     
-    // Mapeamos y convertimos el _id de Mongo a string
-    const formattedServices = services.map(srv => ({
+    // Mapeamos para el frontend
+    const formatted = services.map(srv => ({
       id: srv._id.toString(),
       name: srv.name,
       category: srv.category,
@@ -18,7 +18,7 @@ export const GET: APIRoute = async () => {
       time: srv.time
     }));
 
-    return new Response(JSON.stringify(formattedServices), { status: 200 });
+    return new Response(JSON.stringify(formatted), { status: 200 });
   } catch (error) {
     return new Response(JSON.stringify({ error: "Error de conexión a la BD." }), { status: 500 });
   }
@@ -27,27 +27,25 @@ export const GET: APIRoute = async () => {
 export const POST: APIRoute = async ({ request }) => {
   try {
     const body = await request.json();
-    
-    // Pasamos el nombre por nuestro filtro de traducción y reglas de negocio
     const processed = processServiceData(body.time);
+    
     if (!processed.shouldShow) {
       return new Response(JSON.stringify({ error: "El tiempo debe medirse en Horas, Meses o Años." }), { status: 400 });
     }
 
-    const client = await clientPromise;
-    const db = client.db('toolsArg');
+    await dbConnect();
     
-    const newService = {
+    // Crear usando el modelo de Mongoose
+    const newService = new Service({
       name: body.name,
       category: body.category,
       price: `$${parseFloat(body.price).toFixed(2)}`,
-      time: processed.text,
-      createdAt: new Date()
-    };
+      time: processed.text
+    });
 
-    const result = await db.collection('services').insertOne(newService);
+    await newService.save();
 
-    return new Response(JSON.stringify({ success: true, id: result.insertedId }), { status: 201 });
+    return new Response(JSON.stringify({ success: true, id: newService._id }), { status: 201 });
   } catch (error) {
     return new Response(JSON.stringify({ error: "Fallo al insertar en MongoDB." }), { status: 500 });
   }
