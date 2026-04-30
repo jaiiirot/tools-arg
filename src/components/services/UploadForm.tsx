@@ -1,65 +1,69 @@
 import { useState } from 'react';
 import { useSystemStore } from '../../store/systemStore';
+import { useAuthStore } from '../../store/authStore';
+import { Button } from '../ui/Button';
+import { db } from '../../lib/firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
-interface UploadFormProps {
-  serviceId: string;
-  serviceName: string;
-}
-
-export const UploadForm = ({ serviceId, serviceName }: UploadFormProps) => {
+export const UploadForm = ({ serviceId, serviceName }: { serviceId: string, serviceName: string }) => {
   const [isUploading, setIsUploading] = useState(false);
   const addLog = useSystemStore((state) => state.addLog);
+  const user = useAuthStore((state) => state.user);
 
   const handleExecute = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsUploading(true);
-    addLog(`> Iniciando subida para: ${serviceName}...`);
+    if (!user) {
+      addLog('[ERROR] Protocolo rechazado: Sesión no válida.');
+      return;
+    }
 
+    setIsUploading(true);
+    addLog(`[SISTEMA] Iniciando compresión de comprobante...`);
+    
     const formData = new FormData(e.currentTarget);
+    formData.append('userEmail', user.email || 'unknown');
     
     try {
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-      
-      if (response.ok) {
-        addLog('> EJECUCIÓN EXITOSA. Comprobante encriptado y subido.');
+      // 1. Enviar imagen al Backend (Astro -> Sharp -> Cloudinary)
+      const res = await fetch('/api/upload', { method: 'POST', body: formData });
+      const data = await res.json();
+
+      if (res.ok && data.url) {
+        addLog('[SISTEMA] Archivo optimizado y alojado. Generando orden en DB...');
+        
+        // 2. Registrar la orden en Firestore
+        await addDoc(collection(db, 'orders'), {
+          serviceId,
+          serviceName,
+          userEmail: user.email,
+          receiptUrl: data.url, // La URL que nos devolvió Cloudinary
+          status: 'PENDING',
+          createdAt: serverTimestamp()
+        });
+
+        addLog(`[ÉXITO] Orden consolidada con éxito.`);
+        e.currentTarget.reset();
       } else {
-        addLog('> ERROR: Fallo en la subida del archivo.');
+        addLog(`[ERROR] ${data.error || 'Paquete rechazado.'}`);
       }
-    } catch (error) {
-      addLog('> ERROR_CRÍTICO: Conexión rechazada.');
+    } catch (err) {
+      addLog('[FATAL] Conexión interrumpida con el clúster.');
     } finally {
       setIsUploading(false);
     }
   };
 
   return (
-    <form onSubmit={handleExecute} className="mt-auto border-t border-dashed border-console-gray pt-4 flex flex-col gap-3">
+    <form onSubmit={handleExecute} className="mt-auto border-t border-sys-border pt-4">
       <input type="hidden" name="serviceId" value={serviceId} />
       <input type="hidden" name="serviceName" value={serviceName} />
-      <input type="hidden" name="userEmail" value="buyer@example.com" /> {/* Esto vendrá de tu Auth luego */}
-      
-      <div className="flex flex-col gap-1">
-        <label className="text-[10px] text-console-white">~/adjuntar_comprobante.jpg</label>
-        <input 
-          type="file" 
-          name="receipt" 
-          accept="image/jpeg, image/png, image/webp"
-          required 
-          disabled={isUploading}
-          className="text-[10px] w-full text-console-gray file:mr-2 file:py-1 file:px-2 file:border-0 file:bg-console-green file:text-console-bg hover:file:bg-console-white file:cursor-pointer file:transition-colors disabled:opacity-50" 
-        />
-      </div>
-
-      <button 
-        type="submit" 
-        disabled={isUploading}
-        className="border border-console-green text-console-green px-4 py-1 hover:bg-console-green hover:text-console-bg transition-all font-bold uppercase tracking-tighter disabled:opacity-50"
-      >
-        {isUploading ? '[ PROCESANDO... ]' : '[ EJECUTAR PAGO ]'}
-      </button>
+      <input 
+        type="file" name="receipt" accept="image/*" required disabled={isUploading}
+        className="w-full text-[10px] text-sys-muted file:bg-sys-border file:text-sys-text file:border-0 file:px-3 file:py-1 file:mr-3 hover:file:bg-sys-accent hover:file:text-sys-bg cursor-pointer mb-4 outline-none transition-colors" 
+      />
+      <Button type="submit" disabled={isUploading}>
+        {isUploading ? 'Procesando...' : 'Confirmar Orden'}
+      </Button>
     </form>
   );
 };

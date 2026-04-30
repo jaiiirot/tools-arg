@@ -11,32 +11,32 @@ const { title } = Astro.props;
 <html lang="es">
 	<head>
 		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>{title} | {SITE_CONFIG.name}</title>
 	</head>
-	<body class="p-4 md:p-8 max-w-7xl mx-auto">
-		<header class="mb-8 border-b border-console-gray pb-4 flex justify-between items-center">
+	<body class="p-4 sm:p-6 md:p-8 max-w-7xl mx-auto flex flex-col min-h-screen">
+		<header class="mb-6 md:mb-8 border-b border-console-gray pb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
 			<div>
-				<div class="text-console-green font-bold text-xl tracking-tighter">
+				<div class="text-console-green font-bold text-lg md:text-xl tracking-tighter">
 					{SITE_CONFIG.author} <span class="text-console-white">/</span> {title.toLowerCase()}
 				</div>
-				<div class="text-[10px] text-console-gray font-mono mt-1">
-					SYSTEM_VERSION: {SITE_CONFIG.version} | STATUS: <span class="text-console-green animate-pulse">OPERATIONAL</span>
+				<div class="text-[10px] text-console-gray mt-1">
+					SYS_VER: {SITE_CONFIG.version} | STATUS: <span class="text-console-green animate-pulse">OK</span>
 				</div>
 			</div>
-			<nav class="hidden md:block">
-				<code class="text-xs text-console-gray group cursor-pointer hover:text-console-green">
+			<nav class="hidden sm:block">
+				<code class="text-xs text-console-gray">
 					[ <span class="text-console-white">Uptime:</span> 99.9% ]
 				</code>
 			</nav>
 		</header>
 
-		<main>
+		<main class="flex-grow">
 			<slot />
 		</main>
 
-		<footer class="mt-12 pt-4 border-t border-console-gray text-[10px] text-console-gray flex justify-between">
-			<div>&copy; 2026 {SITE_CONFIG.name} // SESSION_ENCRYPTED: TRUE</div>
+		<footer class="mt-auto pt-6 pb-2 border-t border-console-gray text-[10px] text-console-gray flex flex-col sm:flex-row justify-between gap-2 text-center sm:text-left">
+			<div>&copy; 2026 {SITE_CONFIG.name} // SESSION_ENCRYPTED</div>
 			<div class="hover:text-console-green cursor-help">HELP? TYPE --HELP</div>
 		</footer>
 	</body>

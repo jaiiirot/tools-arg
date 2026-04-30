@@ -19,3 +19,17 @@ export const sendSystemNotification = async (to: string, serviceName: string) =>
 
   return transporter.sendMail(mailOptions);
 };
+
+// NUEVA FUNCIÓN: Notificación de Cambio de Estado
+export const sendStatusNotification = async (to: string, serviceName: string, status: 'APPROVED' | 'REJECTED') => {
+  const isApproved = status === 'APPROVED';
+  
+  const mailOptions = {
+    from: `"${SITE_CONFIG.author}" <${process.env.SMTP_USER}>`,
+    to,
+    subject: `[STATUS_UPDATE] Orden ${isApproved ? 'APROBADA' : 'RECHAZADA'}: ${serviceName}`,
+    text: `> SYSTEM NOTIFICATION\n\nEl administrador ha procesado su orden para el servicio: ${serviceName}.\n\nNUEVO ESTADO: [ ${status} ]\n\n${isApproved ? 'El servicio se encuentra en ejecución y pronto será completado.' : 'El comprobante ha sido rechazado. Por favor, contacte a soporte.'}\n\n-- ${SITE_CONFIG.author}`
+  };
+
+  return transporter.sendMail(mailOptions);
+};

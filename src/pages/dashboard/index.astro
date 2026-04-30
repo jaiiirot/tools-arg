@@ -1,24 +1,24 @@
 ---
 import ConsoleLayout from '../../layouts/ConsoleLayout.astro';
-import { Sidebar } from '../../components/dashboard/Sidebar';
-import { ServiceGrid } from '../../components/dashboard/ServiceGrid';
-import { ProtectedRoute } from '../../components/auth/ProtectedRoute';
-import { getAvailableServices } from '../../services/services.service';
+import { Sidebar } from '../../components/dashboard/Sidebar.tsx';
+import { ClientWorkspace } from '../../components/dashboard/ClientWorkspace.tsx';
+import { ProtectedRoute } from '../../components/auth/ProtectedRoute.tsx';
+import { getAvailableServices } from '../../services/services.service.ts';
 
 const services = await getAvailableServices();
 ---
 
 <ConsoleLayout title="Área de Cliente">
-  <!-- El guardián bloqueará el renderizado si no hay sesión activa -->
   <ProtectedRoute client:only="react">
-    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mt-6">
       
       <div class="lg:col-span-1">
         <Sidebar client:load />
       </div>
 
       <main class="lg:col-span-3">
-        <ServiceGrid client:load initialServices={services} />
+        <!-- Inyectamos el nuevo Workspace Dinámico -->
+        <ClientWorkspace client:load initialServices={services} />
       </main>
 
     </div>

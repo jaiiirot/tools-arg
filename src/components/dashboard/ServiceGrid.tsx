@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ServiceCard } from '../services/ServiceCard';
 import type { ServiceItem } from '../../services/services.service';
+import { Box } from '../ui/Box';
 
 interface Props {
   initialServices: ServiceItem[];
@@ -14,26 +15,26 @@ export const ServiceGrid = ({ initialServices }: Props) => {
   );
 
   return (
-    <section className="flex flex-col gap-4">
-      {/* Buscador estilo CLI */}
-      <div className="border border-console-gray bg-[#353534] p-3 flex items-center gap-2">
-        <span className="text-console-green font-bold text-sm">./search --query="</span>
+    <section className="flex flex-col gap-6">
+      {/* Buscador Neo-Brutalista */}
+      <Box className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4">
+        <div className="text-[10px] text-sys-muted uppercase tracking-widest font-bold whitespace-nowrap">
+          Buscar /
+        </div>
         <input 
           type="text" 
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="buscar_servicio..."
-          className="bg-transparent border-none outline-none text-console-white w-full text-sm font-mono placeholder-console-gray"
+          placeholder="Nombre del servicio..."
+          className="bg-transparent border-b border-sys-border focus:border-sys-accent outline-none text-sys-text w-full text-sm placeholder-sys-muted pb-1 transition-colors"
         />
-        <span className="text-console-green font-bold text-sm">"</span>
-      </div>
-
-      <div className="mb-2">
-        <p className="text-xs text-console-gray">{">"} Coincidencias encontradas: <span className="text-console-green">{filteredServices.length}</span></p>
-      </div>
+        <div className="text-[10px] text-sys-muted whitespace-nowrap">
+          Resultados: <span className="text-sys-accent font-bold">{filteredServices.length}</span>
+        </div>
+      </Box>
 
       {/* Grid de resultados */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {filteredServices.map(service => (
           <ServiceCard key={service.id} {...service} />
         ))}

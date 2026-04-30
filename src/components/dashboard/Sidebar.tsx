@@ -1,61 +1,74 @@
-import { signOut } from 'firebase/auth';
-import { auth } from '../../lib/firebase';
-import { useSystemStore } from '../../store/systemStore';
-import { useAuthStore } from '../../store/authStore';
+import { signOut } from "firebase/auth";
+import { auth } from "../../lib/firebase";
+import { useSystemStore } from "../../store/systemStore";
+import { useAuthStore } from "../../store/authStore";
+import { Box } from "../ui/Box";
 
 export const Sidebar = () => {
   const { logs, balance, addLog } = useSystemStore();
   const user = useAuthStore((state) => state.user);
 
-  const handleLogout = async () => {
-    addLog('> [SISTEMA] Destruyendo sesión actual...');
-    try {
-      await signOut(auth);
-      // El onAuthStateChanged global lo detectará y el ProtectedRoute redirigirá
-    } catch (error) {
-      addLog('> [ERROR] Fallo al cerrar el puerto seguro.');
-    }
+  const handleLogout = () => {
+    addLog("[SISTEMA] Desconectando nodo...");
+    signOut(auth);
   };
 
   return (
-    <aside className="space-y-4">
-      {/* Resumen / Wallet */}
-      <div className="border border-console-gray bg-[#353534] p-4">
-        <h2 className="text-sm font-bold border-b border-console-gray text-console-white pb-2 mb-3">~ /wallet_overview</h2>
-        <div className="space-y-2">
-          {/* Mostramos el email real del usuario autenticado */}
-          <p className="text-[10px] text-console-gray truncate">User: <span className="text-console-white">{user?.email || 'unknown_entity'}</span></p>
-          <p className="text-[10px] text-console-gray">Status: <span className="text-console-green animate-pulse">VERIFIED</span></p>
-          <div className="mt-4 pt-4 border-t border-console-gray">
-            <p className="text-[10px] uppercase text-console-gray">Fondos_Actuales</p>
-            <p className="text-xl font-bold text-console-green">${balance.toFixed(2)}</p>
-          </div>
+    <aside className="flex flex-col gap-4 lg:sticky lg:top-8">
+      {/* Panel de Usuario */}
+      <Box>
+        <div className="text-[10px] text-sys-muted uppercase mb-1">
+          ID CLIENTE
         </div>
-      </div>
+        <div className="text-sm truncate mb-5">{user?.email || "N/A"}</div>
 
-      {/* Navegación */}
-      <div className="border border-console-gray bg-[#353534] p-4">
-        <h2 className="text-sm font-bold border-b border-console-gray text-console-white pb-2 mb-3">~ /bin/menu</h2>
-        <ul className="text-xs space-y-3 text-console-gray">
-          {/* ESCAPAMOS EL CARÁCTER '>' CON {">"} PARA EVITAR ERRORES DE JSX */}
-          <li className="hover:text-console-green cursor-pointer transition-colors">{">"} ./hacer_pedido.sh</li>
-          <li className="hover:text-console-green cursor-pointer transition-colors">{">"} ./historial_ordenes.sh</li>
-          <li className="hover:text-console-green cursor-pointer transition-colors">{">"} ./soporte_tickets.sh</li>
-          {/* Comando EXIT funcional */}
-          <li onClick={handleLogout} className="hover:text-red-500 cursor-pointer transition-colors mt-4 pt-2 border-t border-console-gray">{">"} exit()</li>
-        </ul>
-      </div>
+        <div className="text-[10px] text-sys-muted uppercase mb-1">
+          FONDOS DISPONIBLES
+        </div>
+        <div className="text-3xl font-bold text-sys-accent">
+          ${balance.toFixed(2)}
+        </div>
+      </Box>
 
-      {/* Terminal de Logs Interactiva (Permanece igual) */}
-      <div className="border border-console-gray bg-[#1a1a19] p-4 h-64 flex flex-col">
-        <h2 className="text-[10px] font-bold text-console-gray mb-2 uppercase">System_Logs // StdOut</h2>
-        <div className="flex-1 overflow-y-auto text-[10px] font-mono text-console-green space-y-1 pr-2">
-          {logs.map((log, idx) => (
-            <p key={idx} className="opacity-90">{log}</p>
+      {/* Navegación Brutalista */}
+      <Box>
+        <nav className="flex flex-col text-xs uppercase tracking-widest font-bold">
+          <button
+            onClick={() => useSystemStore.getState().setClientTab("catalog")}
+            className="text-left border-b border-sys-border py-3 hover:text-sys-accent transition-colors"
+          >
+            Nuevo Pedido
+          </button>
+          <button
+            onClick={() => useSystemStore.getState().setClientTab("history")}
+            className="text-left border-b border-sys-border py-3 hover:text-sys-accent transition-colors"
+          >
+            Historial
+          </button>
+          <button className="text-left border-b border-sys-border py-3 hover:text-sys-accent transition-colors opacity-50 cursor-not-allowed">
+            Soporte
+          </button>
+          <button
+            onClick={handleLogout}
+            className="text-left py-3 mt-2 text-[#FF4444] hover:bg-[#FF4444] hover:text-sys-bg px-2 transition-colors"
+          >
+            Finalizar Sesión
+          </button>
+        </nav>
+      </Box>
+
+      {/* Activity Log Limpio */}
+      <Box className="h-48 flex flex-col">
+        <div className="text-[10px] text-sys-muted uppercase mb-3 border-b border-sys-border pb-2">
+          ACTIVITY_LOG
+        </div>
+        <div className="flex-1 overflow-y-auto text-[10px] space-y-1.5 leading-relaxed text-sys-muted">
+          {logs.map((log, i) => (
+            <div key={i}>{log}</div>
           ))}
-          <p className="animate-blink">_</p>
+          <div className="animate-blink text-sys-accent">_</div>
         </div>
-      </div>
+      </Box>
     </aside>
   );
 };
