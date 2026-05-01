@@ -1,55 +1,62 @@
-import { lazy, Suspense } from 'react'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { ProtectedRoute } from './ProtectedRoute'
-import { RoleRoute } from './RoleRoute'
-import { TerminalSpinner } from '@/atoms/Spinner'
+import React, { lazy, Suspense } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ProtectedRoute } from "./ProtectedRoute";
+import { RoleRoute } from "./RoleRoute";
+import { Spinner } from "@/components/atoms/Spinner";
 
-const LoginPage    = lazy(() => import('@/pages/auth/LoginPage'))
-const RegisterPage = lazy(() => import('@/pages/auth/RegisterPage'))
-const DashboardPage = lazy(() => import('@/pages/dashboard/DashboardPage'))
-const ProductsPage  = lazy(() => import('@/pages/products/ProductsPage'))
-const CoursesPage   = lazy(() => import('@/pages/courses/CoursesPage'))
-const MarketplacePage = lazy(() => import('@/pages/marketplace/MarketplacePage'))
-const AffiliateDashboardPage = lazy(() => import('@/pages/affiliate/AffiliateDashboardPage'))
-const AdminDashboardPage = lazy(() => import('@/pages/admin/AdminDashboardPage'))
-const UserManagerPage    = lazy(() => import('@/pages/admin/UserManagerPage'))
-const OrderManagerPage   = lazy(() => import('@/pages/admin/OrderManagerPage'))
 
-const Fallback = () => (
+const Landing = lazy(() => import("@/pages/Landing"));
+const Login = lazy(() => import("@/pages/auth/Login"));
+const Register = lazy(() => import("@/pages/auth/Register"));
+const Dashboard = lazy(() => import("@/pages/dashboard/Dashboard"));
+const Products = lazy(() => import("@/pages/products/Products"));
+const Courses = lazy(() => import("@/pages/courses/Courses"));
+const Marketplace = lazy(() => import("@/pages/marketplace/Marketplace"));
+const Affiliates = lazy(() => import("@/pages/affiliates/Affiliates"));
+const Admin = lazy(() => import("@/pages/admin/Admin"));
+const Forbidden = lazy(() => import("@/pages/Forbidden"));
+const NotFound = lazy(() => import("@/pages/NotFound"));
+
+const fallback = (
   <div className="h-screen flex items-center justify-center bg-terminal-bg">
-    <TerminalSpinner label="Loading module..." />
+    <Spinner size="lg" />
   </div>
-)
+);
 
-export function AppRouter() {
+export const AppRouter: React.FC = () => {
   return (
     <BrowserRouter>
-      <Suspense fallback={<Fallback />}>
+      <Suspense fallback={fallback}>
         <Routes>
-          <Route path="/login"    element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/forbidden" element={<div className="h-screen flex items-center justify-center bg-terminal-bg text-terminal-red font-mono">ACCESS DENIED</div>} />
+          {/* RUTAS PÚBLICAS */}
+          <Route path="/" element={<Landing />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/forbidden" element={<Forbidden />} />
 
+          {/* RUTAS PRIVADAS (Protegidas por Outlet en ProtectedRoute) */}
           <Route element={<ProtectedRoute />}>
-            <Route path="/dashboard"   element={<DashboardPage />} />
-            <Route path="/products"    element={<ProductsPage />} />
-            <Route path="/courses"     element={<CoursesPage />} />
-            <Route path="/marketplace" element={<MarketplacePage />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/products" element={<Products />} />
+            <Route path="/courses" element={<Courses />} />
+            <Route path="/marketplace" element={<Marketplace />} />
 
-            <Route element={<RoleRoute allowedRoles={['root', 'affiliate']} />}>
-              <Route path="/affiliate" element={<AffiliateDashboardPage />} />
+            {/* RUTAS PRIVADAS CON PROTECCIÓN DE ROL */}
+            <Route element={<RoleRoute roles={["root", "admin", "affiliate"]} />}>
+              <Route path="/affiliates" element={<Affiliates />} />
             </Route>
 
-            <Route element={<RoleRoute allowedRoles={['root']} />}>
-              <Route path="/admin"            element={<AdminDashboardPage />} />
-              <Route path="/admin/users"      element={<UserManagerPage />} />
-              <Route path="/admin/orders"     element={<OrderManagerPage />} />
+            <Route element={<RoleRoute roles={["root", "admin"]} />}>
+              <Route path="/admin" element={<Admin />} />
             </Route>
           </Route>
 
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          {/* RUTAS NO ENCONTRADAS (404) */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
     </BrowserRouter>
-  )
-}
+  );
+};
+
+export default AppRouter;

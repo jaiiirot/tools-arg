@@ -1,45 +1,31 @@
-import axios from 'axios'
-import { auth } from '@/lib/firebase'
+import axios from "axios"
+import { auth } from "./firebase"
 
-const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
-  timeout: 15_000,
-  headers: { 'Content-Type': 'application/json' },
-})
+const api = axios.create({ baseURL: import.meta.env.VITE_API_URL })
 
-// Deduplication map
-const pendingRequests = new Map<string, AbortController>()
-
-apiClient.interceptors.request.use(async (config) => {
-  // Attach Firebase token
+api.interceptors.request.use(async (config) => {
   const user = auth.currentUser
   if (user) {
     const token = await user.getIdToken()
     config.headers.Authorization = `Bearer ${token}`
   }
-  // Dedup
-  const key = `${config.method}:${config.url}`
-  if (pendingRequests.has(key)) pendingRequests.get(key)!.abort()
-  const controller = new AbortController()
-  config.signal = controller.signal
-  pendingRequests.set(key, controller)
   return config
 })
 
-apiClient.interceptors.response.use(
-  (res) => {
-    const key = `${res.config.method}:${res.config.url}`
-    pendingRequests.delete(key)
-    return res
-  },
-  (error) => {
-    if (error.response?.status === 401) {
-      auth.signOut()
-      window.location.href = '/login'
+api.interceptors.response.use(
+  (res) => res,
+  async (error) => {
+    const status = error.response?.status
+    if (status === 401) {
+      await auth.signOut()
+      window.location.href = "/login"
+    } else if (status === 403) {
+      window.location.href = "/forbidden"
+    } else if (status >= 500) {
+      console.error("Server error:", error.response?.data?.message)
     }
-    if (error.response?.status === 403) window.location.href = '/forbidden'
     return Promise.reject(error)
   }
 )
 
-export default apiClient
+export default api

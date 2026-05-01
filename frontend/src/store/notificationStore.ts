@@ -1,32 +1,27 @@
-import { create } from 'zustand'
+import { create } from "zustand"
+import type { Notification } from "@/types/api"
 
-export interface Notification {
-  id:        string
-  title:     string
-  message:   string
-  type:      'info' | 'success' | 'warning' | 'error'
-  read:      boolean
-  createdAt: string
-}
-
-interface NotificationStore {
+interface NotificationState {
   notifications: Notification[]
   unreadCount:   number
-  setNotifications:(ns: Notification[]) => void
-  markRead:        (id: string) => void
-  markAllRead:     () => void
+  setNotifications: (n: Notification[]) => void
+  markRead:         (id: string) => void
+  markAllRead:      () => void
 }
 
-export const useNotificationStore = create<NotificationStore>((set) => ({
-  notifications:  [],
-  unreadCount:    0,
-  setNotifications:(notifications) =>
-    set({ notifications, unreadCount: notifications.filter((n) => !n.read).length }),
+export const useNotificationStore = create<NotificationState>((set) => ({
+  notifications: [],
+  unreadCount:   0,
+  setNotifications: (n) =>
+    set({ notifications: n, unreadCount: n.filter((x) => !x.read).length }),
   markRead: (id) =>
     set((s) => {
-      const updated = s.notifications.map((n) => n.id === id ? { ...n, read: true } : n)
-      return { notifications: updated, unreadCount: updated.filter((n) => !n.read).length }
+      const notifications = s.notifications.map((n) => n.id === id ? { ...n, read: true } : n)
+      return { notifications, unreadCount: notifications.filter((x) => !x.read).length }
     }),
   markAllRead: () =>
-    set((s) => ({ notifications: s.notifications.map((n) => ({ ...n, read: true })), unreadCount: 0 })),
+    set((s) => ({
+      notifications: s.notifications.map((n) => ({ ...n, read: true })),
+      unreadCount: 0,
+    })),
 }))

@@ -2,52 +2,64 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  :root {
-    --terminal-bg:           #0d1117;
-    --terminal-bg-secondary: #161b22;
-    --terminal-border:       #30363d;
-    --terminal-green:        #39d353;
-    --terminal-cyan:         #56d8f5;
-    --terminal-yellow:       #d8b151;
-    --terminal-red:          #f85149;
-    --terminal-purple:       #bc8cff;
-    --terminal-text:         #c9d1d9;
-    --terminal-text-muted:   #8b949e;
-    --terminal-prompt:       #39d353;
-    --tmux-statusbar:        #1c2128;
-    --tmux-active-pane:      #0d1117;
-    --tmux-inactive-pane:    #161b22;
-  }
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap');
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  html, body, #root {
-    height: 100%;
-    background-color: var(--terminal-bg);
-    color: var(--terminal-text);
-    font-family: 'JetBrains Mono', 'Fira Code', monospace;
-    font-size: 14px;
-  }
-
-  ::-webkit-scrollbar { width: 6px; height: 6px; }
-  ::-webkit-scrollbar-track { background: var(--terminal-bg-secondary); }
-  ::-webkit-scrollbar-thumb { background: var(--terminal-border); border-radius: 3px; }
-  ::-webkit-scrollbar-thumb:hover { background: var(--terminal-green); }
-
-  ::selection { background: var(--terminal-green); color: var(--terminal-bg); }
+:root {
+  --terminal-bg:           #0d1117;
+  --terminal-bg-secondary: #161b22;
+  --terminal-border:       #30363d;
+  --terminal-green:        #39d353;
+  --terminal-cyan:         #56d8f5;
+  --terminal-yellow:       #d8b151;
+  --terminal-red:          #f85149;
+  --terminal-purple:       #bc8cff;
+  --terminal-text:         #c9d1d9;
+  --terminal-text-muted:   #8b949e;
+  --terminal-prompt:       #39d353;
+  --tmux-statusbar:        #1c2128;
+  --tmux-active-pane:      #0d1117;
+  --tmux-inactive-pane:    #161b22;
 }
 
-@layer components {
-  .terminal-border { border: 1px solid var(--terminal-border); }
-  .terminal-border-green { border: 1px solid var(--terminal-green); }
-  .terminal-glow { box-shadow: 0 0 10px rgba(57,211,83,.25); }
-  .terminal-glow-red { box-shadow: 0 0 10px rgba(248,81,73,.25); }
-  .pane-title {
-    background: var(--tmux-statusbar);
-    border-bottom: 1px solid var(--terminal-border);
-    padding: 4px 12px;
-    font-size: 12px;
-    color: var(--terminal-text-muted);
-  }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background-color: var(--terminal-bg);
+  color: var(--terminal-text);
+  font-family: 'JetBrains Mono', monospace;
+  -webkit-font-smoothing: antialiased;
+}
+
+::-webkit-scrollbar       { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--terminal-bg-secondary); }
+::-webkit-scrollbar-thumb { background: var(--terminal-border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--terminal-green); }
+
+::selection { background: var(--terminal-green); color: var(--terminal-bg); }
+
+@keyframes blink    { 0%,100% { opacity:1 } 50% { opacity:0 } }
+@keyframes scanline { 0% { transform:translateY(-100%) } 100% { transform:translateY(100vh) } }
+@keyframes glitch   {
+  0%,100% { transform:translate(0) }
+  20%     { transform:translate(-2px,2px) }
+  40%     { transform:translate(2px,-2px) }
+  60%     { transform:translate(-1px,1px) }
+  80%     { transform:translate(1px,-1px) }
+}
+
+.cursor-blink::after {
+  content: '█';
+  color: var(--terminal-green);
+  animation: blink 1s step-end infinite;
+}
+
+.terminal-glow  { box-shadow: 0 0 10px rgba(57,211,83,.2), 0 0 20px rgba(57,211,83,.1); }
+.cyan-glow      { box-shadow: 0 0 10px rgba(86,216,245,.2); }
+.scanline-effect::after {
+  content:'';
+  position:fixed; top:0; left:0;
+  width:100%; height:2px;
+  background:rgba(57,211,83,.05);
+  animation:scanline 8s linear infinite;
+  pointer-events:none; z-index:9999;
 }

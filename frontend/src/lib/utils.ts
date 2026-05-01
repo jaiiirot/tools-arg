@@ -1,19 +1,18 @@
-import { type ClassValue, clsx } from 'clsx'
-import { twMerge } from 'tailwind-merge'
+import { clsx, type ClassValue } from "clsx"
+import { twMerge } from "tailwind-merge"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function formatPrice(value: number, currency = 'USD') {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(value)
+export function formatCurrency(amount: number, currency = "USD"): string {
+  return new Intl.NumberFormat("es-AR", { style: "currency", currency }).format(amount)
 }
 
-export function formatDate(iso: string) {
-  return new Intl.DateTimeFormat('es-AR', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(iso))
+export function formatDate(date: string): string {
+  return new Intl.DateTimeFormat("es-AR", { dateStyle: "medium", timeStyle: "short" }).format(new Date(date))
 }
 
-export function debounce<T extends (...args: unknown[]) => void>(fn: T, delay: number): T {
-  let timer: ReturnType<typeof setTimeout>
-  return ((...args: unknown[]) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), delay) }) as T
+export function sleep(ms: number): Promise<void> {
+  return new Promise((r) => setTimeout(r, ms))
 }
