@@ -1,0 +1,820 @@
+#!/bin/bash
+
+# ==============================================================================
+# COSO GSM — Actualización UI
+# Implementación de botón "Consultar / Comprar" en las cards de servicios.
+# ==============================================================================
+
+cat << 'EOF' > index.html
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COSO GSM — Herramientas & Precios</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:          #080c14;
+  --bg-panel:    #0c1120;
+  --bg-card:     #101828;
+  --bg-hover:    #162033;
+  --cyan:        #06b6d4;
+  --cyan-dim:    #0891b2;
+  --cyan-glow:   rgba(6, 182, 212, 0.07);
+  --cyan-border: rgba(6, 182, 212, 0.25);
+  --amber:       #f59e0b;
+  --amber-glow:  rgba(245, 158, 11, 0.12);
+  --green:       #10b981;
+  --red:         #ef4444;
+  --text-1:      #e2e8f0;
+  --text-2:      #64748b;
+  --text-3:      #334155;
+  --border:      #1e2d40;
+  --radius:      10px;
+  --radius-sm:   6px;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text-1);
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── HEADER ── */
+header {
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(12px);
+}
+.header-inner {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.logo {
+  display: flex; align-items: center; gap: 10px;
+  text-decoration: none; user-select: none;
+}
+.logo-mark {
+  width: 34px; height: 34px;
+  background: linear-gradient(135deg, var(--cyan), #0ea5e9);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700; font-size: 13px;
+  color: #080c14; letter-spacing: -0.04em; flex-shrink: 0;
+}
+.logo-name {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700; font-size: 14px;
+  letter-spacing: 0.06em; color: var(--text-1);
+}
+.logo-name span { color: var(--cyan); }
+.rate-badge {
+  display: flex; align-items: center; gap: 7px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 20px; padding: 5px 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: var(--text-2); white-space: nowrap;
+}
+.rate-badge strong { color: var(--cyan); }
+.rate-dot {
+  width: 6px; height: 6px;
+  background: var(--green);
+  border-radius: 50%;
+  animation: blink 2.4s infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+/* ── HERO ── */
+.hero {
+  max-width: 1300px; margin: 0 auto;
+  padding: 52px 24px 32px;
+}
+.hero-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--cyan);
+  opacity: .8; margin-bottom: 14px;
+}
+.hero-title {
+  font-size: clamp(30px,4.5vw,48px);
+  font-weight: 800; line-height: 1.1;
+  letter-spacing: -0.03em; margin-bottom: 14px;
+}
+.hero-title em { font-style: normal; color: var(--cyan); }
+.hero-sub {
+  color: var(--text-2); font-size: 15px;
+  max-width: 500px; line-height: 1.65; margin-bottom: 28px;
+}
+.chips-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.chip {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 20px; padding: 5px 14px;
+  font-size: 12px; color: var(--text-2);
+}
+.chip strong { color: var(--text-1); }
+
+/* ── RATE PILL ── */
+.rate-info {
+  max-width: 1300px; margin: 0 auto 20px; padding: 0 24px;
+}
+.rate-pill {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 20px; padding: 6px 16px;
+  font-size: 12px; color: var(--text-2); transition: border-color .3s;
+}
+.rate-pill.ok    { border-color: var(--cyan-border); }
+.rate-pill.error { border-color: rgba(239,68,68,.35); color: var(--red); }
+.pill-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--text-3); flex-shrink: 0;
+}
+.rate-pill.ok .pill-dot    { background: var(--green); }
+.rate-pill.error .pill-dot { background: var(--red); }
+
+/* ── CONTROLS ── */
+.controls {
+  max-width: 1300px; margin: 0 auto;
+  padding: 0 24px 28px;
+  display: flex; gap: 10px; flex-wrap: wrap;
+}
+.search-wrap { position: relative; flex: 1; min-width: 200px; }
+.search-icon {
+  position: absolute; left: 12px; top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-3); pointer-events: none;
+}
+input[type="search"] {
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-1);
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  padding: 9px 12px 9px 38px;
+  outline: none; transition: border-color .2s;
+}
+input[type="search"]:focus { border-color: var(--cyan-dim); }
+input[type="search"]::placeholder { color: var(--text-3); }
+input[type="search"]::-webkit-search-cancel-button { display: none; }
+select.filter-sel {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-2);
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  padding: 9px 32px 9px 12px;
+  outline: none; cursor: pointer; appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23334155' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 11px center;
+  transition: border-color .2s;
+}
+select.filter-sel:focus { border-color: var(--cyan-dim); color: var(--text-1); }
+
+/* ── SECTION ── */
+.section {
+  max-width: 1300px; margin: 0 auto 44px; padding: 0 24px;
+}
+.section-head {
+  display: flex; align-items: center;
+  gap: 12px; margin-bottom: 14px;
+}
+.section-badge {
+  height: 22px; border-radius: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: .08em; text-transform: uppercase;
+  padding: 0 9px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.tag-xiaomi   { background: #ff690025; color: #fb923c;   border: 1px solid #ff690030; }
+.tag-moto     { background: #3b82f625; color: #60a5fa;   border: 1px solid #3b82f630; }
+.tag-samsung  { background: #6366f125; color: #818cf8;   border: 1px solid #6366f130; }
+.tag-awt      { background: #ef444425; color: #f87171;   border: 1px solid #ef444430; }
+.tag-dft      { background: #a855f725; color: #c084fc;   border: 1px solid #a855f730; }
+.tag-schematics { background: #f59e0b25; color: #fbbf24; border: 1px solid #f59e0b30; }
+.tag-tools    { background: rgba(6,182,212,.1); color: var(--cyan); border: 1px solid var(--cyan-border); }
+
+.section-title { font-size: 15px; font-weight: 600; color: var(--text-1); }
+.section-divider { height: 1px; background: var(--border); flex: 1; }
+.section-count {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: var(--text-3); flex-shrink: 0;
+}
+
+/* ── GRID & CARDS ── */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 10px;
+}
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  display: flex; flex-direction: column; gap: 12px;
+  position: relative; overflow: hidden;
+  transition: border-color .2s, background .2s, transform .15s;
+}
+.card::after {
+  content: ''; position: absolute; inset: 0;
+  border-radius: var(--radius);
+  background: var(--cyan-glow);
+  opacity: 0; transition: opacity .2s; pointer-events: none;
+}
+.card:hover { border-color: var(--cyan-border); background: var(--bg-hover); transform: translateY(-2px); }
+.card:hover::after { opacity: 1; }
+
+.badge-new {
+  display: inline-block; font-size: 9px;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700; letter-spacing: .06em;
+  color: var(--cyan); background: var(--cyan-glow);
+  border: 1px solid var(--cyan-border);
+  border-radius: 3px; padding: 1px 5px;
+  vertical-align: middle; margin-left: 5px;
+}
+
+.card-top {
+  display: flex; justify-content: space-between;
+  align-items: flex-start; gap: 10px;
+}
+.card-name {
+  font-size: 12.5px; font-weight: 500;
+  color: var(--text-1); line-height: 1.45; flex: 1;
+}
+.card-time {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; color: var(--green);
+  background: rgba(16,185,129,.1);
+  border: 1px solid rgba(16,185,129,.25);
+  border-radius: 4px; padding: 2px 7px;
+  white-space: nowrap; flex-shrink: 0;
+}
+
+/* ── CARD BOTTOM: precio + imagen ── */
+.card-bottom {
+  display: flex; align-items: center;
+  justify-content: space-between; gap: 8px;
+}
+.price-block { display: flex; flex-direction: column; gap: 1px; flex: 1; }
+
+.price-ars {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 22px; font-weight: 700;
+  color: var(--cyan); letter-spacing: -0.03em; line-height: 1.1;
+}
+.price-ars-label { font-size: 10px; color: var(--text-3); margin-top: 2px; }
+.price-free-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 22px; font-weight: 700;
+  color: var(--amber); letter-spacing: -0.03em; line-height: 1.1;
+}
+.price-na {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px; font-weight: 700;
+  color: var(--red); letter-spacing: -0.02em;
+  opacity: .7;
+}
+
+/* ── Imagen de la tool a la derecha ── */
+.card-tool-img {
+  width: 52px; height: 52px;
+  border-radius: 8px;
+  object-fit: contain;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  padding: 4px;
+  flex-shrink: 0;
+}
+.card-tool-fallback {
+  width: 52px; height: 52px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px; font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* ── BUTTONS ── */
+.card-actions {
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px dashed rgba(255,255,255,0.05);
+}
+.btn-buy {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%;
+  background: rgba(6, 182, 212, 0.08);
+  color: var(--cyan);
+  border: 1px solid var(--cyan-border);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  font-family: 'Inter', sans-serif;
+  font-size: 12.5px; font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s;
+  cursor: pointer;
+  position: relative;
+  z-index: 2;
+}
+.btn-buy:hover {
+  background: var(--cyan);
+  color: #080c14;
+}
+.btn-buy:active { transform: translateY(1px); }
+.btn-buy.disabled {
+  background: rgba(239, 68, 68, 0.05);
+  color: var(--red);
+  border-color: rgba(239, 68, 68, 0.2);
+  cursor: not-allowed;
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+/* ── SKELETON ── */
+.loading-bar {
+  height: 2px; border-radius: 2px;
+  background: linear-gradient(90deg, var(--bg), var(--cyan), var(--bg));
+  background-size: 200%;
+  animation: sweep 1.4s linear infinite; margin-bottom: 22px;
+}
+@keyframes sweep { 0%{background-position:200%} 100%{background-position:-200%} }
+.skeleton {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px;
+  display: flex; flex-direction: column; gap: 12px;
+  animation: pulse 1.8s ease-in-out infinite;
+}
+.sk-line { background: var(--bg-hover); border-radius: 4px; }
+@keyframes pulse { 0%,100%{opacity:.5} 50%{opacity:1} }
+
+/* ── EMPTY STATE ── */
+.empty-state {
+  grid-column: 1 / -1; padding: 40px 24px;
+  text-align: center; color: var(--text-3);
+}
+.empty-state .empty-icon { font-size: 28px; display: block; margin-bottom: 8px; }
+
+/* ── FOOTER ── */
+footer {
+  border-top: 1px solid var(--border);
+  margin-top: auto; padding: 28px 24px;
+  width: 100%; max-width: 1300px; margin-left: auto; margin-right: auto;
+  display: flex; align-items: center;
+  justify-content: space-between; gap: 16px; flex-wrap: wrap;
+}
+.footer-logo { font-family:'JetBrains Mono',monospace; font-weight:700; font-size:13px; color:var(--text-1); }
+.footer-logo span { color: var(--cyan); }
+.footer-note { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-3); }
+.footer-note a { color:var(--text-2); text-decoration:none; border-bottom:1px solid var(--border); }
+.footer-note a:hover { color:var(--cyan); border-color:var(--cyan); }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-3); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 640px) {
+  .hero-title { font-size: 28px; }
+  .rate-badge { display: none; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <a class="logo" href="#">
+      <div class="logo-mark">CG</div>
+      <div class="logo-name">COSO <span>GSM</span></div>
+    </a>
+    <div class="rate-badge">
+      <div class="rate-dot"></div>
+      USD tarjeta: <strong id="rateDisplay">cargando…</strong>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <div class="hero">
+    <div class="hero-label">// Panel de servicios — Tools &amp; Repair</div>
+    <h1 class="hero-title">Herramientas para<br>técnicos <em>profesionales</em></h1>
+    <p class="hero-sub">FRP unlock, repair servers y renta de tools. Precios en ARS al tipo de cambio dólar tarjeta, actualizados en tiempo real.</p>
+    <div class="chips-row" id="statsRow">
+      <div class="chip">Cargando…</div>
+    </div>
+  </div>
+
+  <div class="rate-info">
+    <div class="rate-pill" id="ratePill">
+      <div class="pill-dot"></div>
+      Obteniendo cotización dólar tarjeta…
+    </div>
+  </div>
+
+  <div class="controls">
+    <div class="search-wrap">
+      <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="15" height="15"
+           viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+      </svg>
+      <input type="search" id="searchInput" placeholder="Buscar por nombre de herramienta…" autocomplete="off">
+    </div>
+    <select class="filter-sel" id="categoryFilter">
+      <option value="">Todas las categorías</option>
+    </select>
+    <select class="filter-sel" id="priceFilter">
+      <option value="">Todos los precios</option>
+      <option value="paid">Solo pagos</option>
+      <option value="low">Hasta $ 5.000 ARS</option>
+      <option value="med">$ 5.000 – $ 15.000 ARS</option>
+      <option value="high">Más de $ 15.000 ARS</option>
+    </select>
+  </div>
+
+  <div id="appRoot"></div>
+
+</main>
+
+<footer>
+  <div class="footer-logo">COSO <span>GSM</span></div>
+  <div class="footer-note">
+    Cotización via <a href="https://dolarapi.com" target="_blank" rel="noopener">dolarapi.com</a>
+    &nbsp;·&nbsp; Dólar tarjeta · actualizado en tiempo real
+  </div>
+</footer>
+
+<script src="tools_servicios.js"></script>
+<script src="tools_rent.js"></script>
+<script src="tools_licencias.js"></script>
+<script src="tools_schematics.js"></script>
+<script>
+  const TOOLS_DATA = [
+    ...SERVICIOS_DATA,
+    ...RENT_DATA,
+    ...LICENCIAS_DATA,
+    ...SCHEMATICS_DATA,
+  ];
+</script>
+
+<script>
+'use strict';
+
+// ── Configuración de WhatsApp ────────────────────────────────────────────────
+// ¡Importante! Cambia este número por tu número real con código de país.
+const WA_NUMBER = "5491100000000"; 
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ── Mapa de imágenes: clave = palabras clave del cat/título → URL imagen ──
+const TOOL_IMAGES = {
+  'unlocktool':     'https://server-gsm.net/ecomerce/img/UNLOCKTOOL-min.png',
+  'unlock tool':    'https://server-gsm.net/ecomerce/img/UNLOCKTOOL-min.png',
+  'global unlocker':'https://server-gsm.net/ecomerce/img/GLOBAL-min.png',
+  'chimera':        'https://server-gsm.net/ecomerce/img/CHIMERA-min.png',
+  'octoplus':       'https://server-gsm.net/ecomerce/img/OCTOPLUS-min.png',
+  'z3x':            'https://server-gsm.net/ecomerce/img/Z3X-min.png',
+  'pandora':        'https://server-gsm.net/ecomerce/img/Z3X-min.png',
+  'hydra':          'https://server-gsm.net/ecomerce/img/HYDRA-min.png',
+  'sim-unlocker':   'https://server-gsm.net/ecomerce/img/SIM-UNLCOKER-min.png',
+  'nck':            'https://server-gsm.net/ecomerce/img/NCK-min.png',
+  'sigma':          'https://server-gsm.net/ecomerce/img/SIGMA-min.png',
+  'amt':            'https://server-gsm.net/ecomerce/img/AMT-min.png',
+  'android multi':  'https://server-gsm.net/ecomerce/img/AMT-min.png',
+  'griffin':        'https://server-gsm.net/ecomerce/img/GRIFIN-min.png',
+  'egsm':           'https://server-gsm.net/ecomerce/img/EGSM-min.png',
+  'cheetah':        'https://server-gsm.net/ecomerce/img/CHEAT-min.png',
+  'tr tool':        'https://server-gsm.net/ecomerce/img/TR-min.png',
+  'mworker':        'https://server-gsm.net/ecomerce/img/MWORKER-min.png',
+  'moto king':      'https://server-gsm.net/ecomerce/img/MOTOKING-min.png',
+  'motoking':       'https://server-gsm.net/ecomerce/img/MOTOKING-min.png',
+  'telcel':         'https://server-gsm.net/ecomerce/img/TELCEL-min.png',
+  'movistar':       'https://server-gsm.net/ecomerce/img/MOVISTAR-min.png',
+  'att':            'https://server-gsm.net/ecomerce/img/ATT-min.png',
+  'cricket':        'https://server-gsm.net/ecomerce/img/CRICKET-min.png',
+  't-mobile':       'https://server-gsm.net/ecomerce/img/TMO-min.png',
+  'tmobile':        'https://server-gsm.net/ecomerce/img/TMO-min.png',
+  'sprint':         'https://server-gsm.net/ecomerce/img/SPRINT-min.png',
+  'metro':          'https://server-gsm.net/ecomerce/img/METRO-min.png',
+};
+
+// Resuelve la imagen de un grupo según su cat
+function resolveImg(cat, fallbackImg) {
+  const low = cat.toLowerCase();
+  for (const [key, url] of Object.entries(TOOL_IMAGES)) {
+    if (low.includes(key)) return url;
+  }
+  return fallbackImg || null;
+}
+
+// ── Deduplica servicios: si hay varios con el mismo período, deja solo el más caro ──
+function deduplicateServices(services) {
+  function getPeriodKey(name) {
+    const n = name.toLowerCase();
+    const m = n.match(/(\d+)\s*(mes|month|hora|hour|horas|hours|día|day|días|days|min|año|year)/);
+    if (m) return m[1] + m[2].charAt(0);
+    return null;
+  }
+
+  const seen = new Map();
+  const result = [];
+
+  for (const svc of services) {
+    if (svc.unavailable) { result.push(svc); continue; }
+    const pk = getPeriodKey(svc.name);
+    if (!pk) { result.push(svc); continue; }
+
+    if (!seen.has(pk)) {
+      seen.set(pk, result.length);
+      result.push(svc);
+    } else {
+      const idx = seen.get(pk);
+      if (svc.usd > result[idx].usd) {
+        result[idx] = svc;
+      }
+    }
+  }
+  return result;
+}
+
+let usdRate = null;
+
+// ── Fetch USD → ARS rate ──
+async function fetchRate() {
+  try {
+    const res = await fetch('https://dolarapi.com/v1/dolares/tarjeta');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    usdRate = data.venta;
+
+    document.getElementById('rateDisplay').textContent =
+      '$ ' + usdRate.toLocaleString('es-AR', { minimumFractionDigits: 2 });
+
+    const pill = document.getElementById('ratePill');
+    pill.className = 'rate-pill ok';
+    const ts = new Date(data.fechaActualizacion).toLocaleTimeString('es-AR', { hour:'2-digit', minute:'2-digit' });
+    pill.innerHTML = `
+      <div class="pill-dot"></div>
+      Dólar tarjeta:&nbsp;
+      <strong style="color:var(--cyan)">$&nbsp;${usdRate.toLocaleString('es-AR', { minimumFractionDigits: 2 })}</strong>
+      &nbsp;ARS · actualizado ${ts}
+    `;
+    return true;
+  } catch (err) {
+    usdRate = null;
+    document.getElementById('rateDisplay').textContent = 'sin conexión';
+    const pill = document.getElementById('ratePill');
+    pill.className = 'rate-pill error';
+    pill.innerHTML = '<div class="pill-dot"></div> No se pudo obtener la cotización';
+    return false;
+  }
+}
+
+// ── Convierte USD → ARS + 3000 ──
+function toARS(usd) {
+  if (!usdRate) return null;
+  return Math.round(usd * usdRate) + 3000;
+}
+
+function fmtARS(n) {
+  return '$ ' + n.toLocaleString('es-AR');
+}
+
+// ── iconStyle para fallback ──
+function iconStyle(cat) {
+  if (cat.includes('XIAOMI'))     return 'background:#ff690020;color:#fb923c;';
+  if (cat.includes('MOTOROLA'))   return 'background:#3b82f620;color:#60a5fa;';
+  if (cat.includes('SAMSUNG'))    return 'background:#6366f120;color:#818cf8;';
+  if (cat.includes('AWT'))        return 'background:#ef444420;color:#f87171;';
+  if (cat.includes('DFT'))        return 'background:#a855f720;color:#c084fc;';
+  if (cat.includes('Schematic') || cat.includes('JCID') || cat.includes('Borneo') || cat.includes('Orion')) return 'background:#f59e0b20;color:#fbbf24;';
+  return 'background:rgba(6,182,212,.12);color:var(--cyan);';
+}
+
+// ── Build single card HTML ──
+function buildCard(svc, icon, cat, imgUrl) {
+  const isUnavailable = svc.unavailable === true;
+  const ars = (!isUnavailable && svc.usd > 0) ? toARS(svc.usd) : null;
+
+  let priceHTML;
+  if (isUnavailable) {
+    priceHTML = `
+      <div class="price-block">
+        <div class="price-na">NO DISPONIBLE</div>
+      </div>`;
+  } else if (svc.usd === 0) {
+    priceHTML = `
+      <div class="price-block">
+        <div class="price-free-tag">GRATIS</div>
+        <div class="price-ars-label">ARS · tarjeta</div>
+      </div>`;
+  } else if (ars) {
+    priceHTML = `
+      <div class="price-block">
+        <div class="price-ars">${fmtARS(ars)}</div>
+        <div class="price-ars-label">ARS · tarjeta</div>
+      </div>`;
+  } else {
+    priceHTML = `
+      <div class="price-block">
+        <div class="price-ars" style="font-size:15px">USD $ ${svc.usd.toFixed(2)}</div>
+        <div class="price-ars-label">sin cotización</div>
+      </div>`;
+  }
+
+  const newBadge = svc.new ? '<span class="badge-new">NEW</span>' : '';
+
+  const imgHTML = imgUrl
+    ? `<img class="card-tool-img" src="${imgUrl}" alt="${cat}" loading="lazy"
+         onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+       <div class="card-tool-fallback" style="${iconStyle(cat)};display:none">${icon}</div>`
+    : `<div class="card-tool-fallback" style="${iconStyle(cat)}">${icon}</div>`;
+
+  const arsForData = isUnavailable ? -1 : (svc.usd === 0 ? 0 : (ars || svc.usd));
+
+  // Link de compra
+  const msgText = encodeURIComponent(`Hola, me interesa el servicio: "${svc.name}" de la herramienta ${cat}.`);
+  const buyLink = isUnavailable ? '#' : `https://wa.me/${WA_NUMBER}?text=${msgText}`;
+
+  const buyButtonHTML = isUnavailable 
+    ? `<a href="#" class="btn-buy disabled">
+         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg>
+         No Disponible
+       </a>`
+    : `<a href="${buyLink}" target="_blank" rel="noopener" class="btn-buy">
+         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+         Comprar Ahora
+       </a>`;
+
+  return `<div class="card${isUnavailable ? ' is-unavailable' : ''}" data-cat="${cat}" data-ars="${arsForData}" style="${isUnavailable ? 'opacity:0.45;' : ''}">
+    <div class="card-top">
+      <div class="card-name">${svc.name}${newBadge}</div>
+      <div class="card-time">⚡ ${svc.time}</div>
+    </div>
+    <div class="card-bottom">
+      ${priceHTML}
+      ${imgHTML}
+    </div>
+    <div class="card-actions">
+      ${buyButtonHTML}
+    </div>
+  </div>`;
+}
+
+// ── Populate category filter ──
+function populateFilter() {
+  const sel = document.getElementById('categoryFilter');
+  TOOLS_DATA.forEach(g => {
+    const opt = document.createElement('option');
+    opt.value = g.cat;
+    opt.textContent = g.cat;
+    sel.appendChild(opt);
+  });
+}
+
+// ── Stats chips ──
+function updateStats() {
+  const total = TOOLS_DATA.reduce((a, g) => a + g.services.length, 0);
+  const cats  = TOOLS_DATA.length;
+  const rateChip = usdRate
+    ? `<div class="chip">USD tarjeta <strong>$&nbsp;${usdRate.toLocaleString('es-AR', { minimumFractionDigits: 2 })}</strong></div>`
+    : '';
+  document.getElementById('statsRow').innerHTML = `
+    <div class="chip"><strong>${total}</strong> servicios</div>
+    <div class="chip"><strong>${cats}</strong> categorías</div>
+    ${rateChip}
+  `;
+}
+
+// ── Render all sections ──
+function renderAll() {
+  const root = document.getElementById('appRoot');
+  let html = '';
+  TOOLS_DATA.forEach(group => {
+    const deduped  = deduplicateServices(group.services);
+    const imgUrl   = resolveImg(group.cat, group.img);
+    const count    = deduped.length;
+    const cards    = deduped.map(s => buildCard(s, group.icon, group.cat, imgUrl)).join('');
+    html += `
+      <div class="section" data-section="${group.cat}">
+        <div class="section-head">
+          <span class="section-badge ${group.tag}">${group.icon}</span>
+          <span class="section-title">${group.cat}</span>
+          <div class="section-divider"></div>
+          <span class="section-count">${count} servicios</span>
+        </div>
+        <div class="cards-grid">${cards}</div>
+      </div>`;
+  });
+  root.innerHTML = html;
+}
+
+// ── Filter — busca por TÍTULO (cat = nombre de la herramienta) ──
+function applyFilters() {
+  const q     = document.getElementById('searchInput').value.toLowerCase().trim();
+  const cat   = document.getElementById('categoryFilter').value;
+  const price = document.getElementById('priceFilter').value;
+
+  document.querySelectorAll('.section').forEach(sec => {
+    const secCat = sec.dataset.section.toLowerCase();
+
+    if (cat && sec.dataset.section !== cat) { sec.style.display = 'none'; return; }
+    if (q && !secCat.includes(q)) { sec.style.display = 'none'; return; }
+
+    sec.style.display = '';
+
+    let visible = 0;
+    sec.querySelectorAll('.card').forEach(card => {
+      const ars = parseFloat(card.dataset.ars);
+      const isUnavail = card.classList.contains('is-unavailable');
+      let show = true;
+
+      if (price === 'paid'  && (ars <= 0 || isUnavail))              show = false;
+      if (price === 'low'   && !(ars > 0 && ars <= 5000))            show = false;
+      if (price === 'med'   && !(ars > 5000 && ars <= 15000))        show = false;
+      if (price === 'high'  && !(ars > 15000))                       show = false;
+      if (isUnavail && price && price !== '') show = false;
+
+      card.style.display = show ? '' : 'none';
+      if (show) visible++;
+    });
+
+    let empty = sec.querySelector('.empty-state');
+    if (visible === 0) {
+      if (!empty) {
+        const grid = sec.querySelector('.cards-grid');
+        const el = document.createElement('div');
+        el.className = 'empty-state';
+        el.innerHTML = '<span class="empty-icon">🔍</span>Sin resultados en esta categoría';
+        grid.appendChild(el);
+      }
+    } else {
+      if (empty) empty.remove();
+    }
+  });
+}
+
+// ── Skeleton loader ──
+function showSkeleton() {
+  document.getElementById('appRoot').innerHTML = `
+    <div class="section">
+      <div class="loading-bar"></div>
+      <div class="cards-grid">
+        ${Array(9).fill(0).map(() => `
+          <div class="skeleton">
+            <div class="sk-line" style="height:13px;width:78%"></div>
+            <div class="sk-line" style="height:11px;width:55%"></div>
+            <div class="sk-line" style="height:22px;width:45%;margin-top:6px"></div>
+            <div class="sk-line" style="height:32px;width:100%;margin-top:14px;border-radius:6px"></div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+}
+
+// ── Init ──
+async function init() {
+  showSkeleton();
+  populateFilter();
+  await fetchRate();
+  updateStats();
+  renderAll();
+  document.getElementById('searchInput').addEventListener('input', applyFilters);
+  document.getElementById('categoryFilter').addEventListener('change', applyFilters);
+  document.getElementById('priceFilter').addEventListener('change', applyFilters);
+}
+
+init();
+</script>
+</body>
+</html>
+EOF

@@ -1,30 +1,30 @@
-import admin from 'firebase-admin'
+import admin from "firebase-admin";
 
-let initialized = false
+let initialized = false;
 
 export function getFirebaseAdmin(): admin.app.App {
   if (!initialized) {
     if (!admin.apps.length) {
       admin.initializeApp({
         credential: admin.credential.cert({
-          projectId:   process.env.FIREBASE_PROJECT_ID,
+          projectId: process.env.FIREBASE_PROJECT_ID,
           clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-          privateKey:  process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+          privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
         }),
-      })
+      });
     }
-    initialized = true
-    console.log('[Firebase Admin] Initialized')
+    initialized = true;
+    console.log("[Firebase Admin] Initialized");
   }
-  return admin.app()
+  return admin.app();
 }
 
 export function getFirestore() {
-  return getFirebaseAdmin().firestore()
+  return getFirebaseAdmin().firestore();
 }
 
 export function getAuth() {
-  return getFirebaseAdmin().auth()
+  return getFirebaseAdmin().auth();
 }
 
-export default { getFirebaseAdmin, getFirestore, getAuth }
+export default { getFirebaseAdmin, getFirestore, getAuth };

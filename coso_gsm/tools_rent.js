@@ -1,0 +1,201 @@
+// ─────────────────────────────────────────────────────────────────────────────
+//  COSO GSM — Rent / Alquiler de Herramientas (por horas/días)
+//  Incluye todos los servidores de rent (1-6) y los nuevos de licencia corta.
+//  unavailable: true  →  reemplaza los servicios con precio $0 (NO DISPONIBLE)
+// ─────────────────────────────────────────────────────────────────────────────
+
+const RENT_DATA = [
+
+  // ── RENT SERVER 1 ─────────────────────────────────────────────────────────
+  {
+    cat: "Tools Server 1",
+    tag: "tag-tools",
+    icon: "S1",
+    img: "https://ui-avatars.com/api/?name=S1&background=06b6d4&color=080c14&bold=true&size=64",
+    services: [
+      { name: "360 Tool Rent — 6 horas",                           usd: 2.8,   time: "1-10 min" },
+      { name: "AMT Android Multi Tool Rent — 3 horas",             usd: 1.2,   time: "1-10 min" },
+      { name: "AndroidWinTool Rent — 48 horas",                    usd: 2.1,   time: "1-10 min" },
+      { name: "AnonySHU Tool Rent — 12 horas",                     usd: 2.5,   time: "1-10 min" },
+      { name: "CF Tools Rent — 25 días",                           usd: 8,     time: "1-10 min" },
+      { name: "CHEETAH TOOL RENT — 25 días",                       usd: 8.5,   time: "1-10 min" },
+      { name: "CP-Tools Rent — 12 horas",                          usd: 3,     time: "1-10 min" },
+      { name: "DFT Pro Tool Rent — 48 horas",                      usd: 2.78,  time: "1-10 min" },
+      { name: "Griffin-Unlocker Premium Account Rent — 6 horas",   usd: 2.9,   time: "1-10 min" },
+      { name: "Griffin-Unlocker Tool Rent — 6 horas",              usd: 2.4,   time: "1-10 min" },
+      { name: "Hydra Tool Rent (Sin Dongle) — 24 horas",           usd: 1.5,   time: "1-10 min" },
+      { name: "Kg Killer Tool Rent — 4 horas",                     usd: 1.5,   time: "1-10 min" },
+      { name: "MDM FIX TOOL RENT — 6 horas",                      usd: 2,     time: "1-10 min" },
+      { name: "MST MobileSea Service Tool Rent — 6 horas",         usd: 1.2,   time: "1-10 min" },
+      { name: "PANDA TOOLS — 12 horas",                            usd: 2.5,   time: "1-10 min" },
+      { name: "RTC Tool Rent — 12 horas",                          usd: 1.8,   time: "1-10 min" },
+      { name: "SamsungTool.us KG Rent — 12 horas",                 usd: 5.5,   time: "1-10 min" },
+      { name: "TFM Tool Pro Rent — 6 horas",                       usd: 1.45,  time: "1-10 min" },
+      { name: "TR Tools Pro Rent Instant — 24 horas",              usd: 3.5,   time: "1-10 min" },
+      { name: "TS TOOLS — 3 horas",                                usd: 2.5,   time: "1-10 min" },
+      { name: "TS TOOLS — 6 horas",                                usd: 3,     time: "1-10 min" },
+      { name: "TSM Tool Rent — 12 horas",                          usd: 1.3,   time: "1-10 min" },
+      { name: "TSM TOOLS PR — 6 horas",                            usd: 1,     time: "1-10 min" },
+      { name: "Unlock Tool Rent — 6 horas",                        usd: 1.25,  time: "1-10 min" },
+      { name: "Unlock Tool Rent — 12 horas",                       usd: 1.45,  time: "1-10 min" },
+      { name: "Unlock Tool Rent — 24 horas",                       usd: 3.5,   time: "1-10 min" },
+    ]
+  },
+
+  // ── RENT SERVER 2 ─────────────────────────────────────────────────────────
+  {
+    cat: "Tools Server 2",
+    tag: "tag-tools",
+    icon: "S2",
+    img: "https://ui-avatars.com/api/?name=S2&background=06b6d4&color=080c14&bold=true&size=64",
+    services: [
+      { name: "Android Multitool Rent — 2 horas",                  unavailable: true, time: "1-10 min" },
+      { name: "AndroidWinTool Rent — 48 horas",                    unavailable: true, time: "1-10 min" },
+      { name: "AnonySHU Rent — 12 horas",                          unavailable: true, time: "1-10 min" },
+      { name: "APIZU MDM TOOL PRO Rent — 2 horas",                 unavailable: true, time: "1-10 min" },
+      { name: "Arab FRP Tool Rent — 2 horas",                      unavailable: true, time: "1-10 min" },
+      { name: "CF Tool Rent — 12 horas",                           unavailable: true, time: "1-10 min" },
+      { name: "CHEETAH TOOL RENT — 4 horas",                       unavailable: true, time: "1-10 min" },
+      { name: "DFT Pro Tool Rent — 48 horas",                      unavailable: true, time: "1-10 min" },
+      { name: "E-GSM TOOL Rent",                                   unavailable: true, time: "1-10 min" },
+      { name: "EFT Dongle Share — 1 hora",                         unavailable: true, time: "1-10 min" },
+      { name: "Flex Tool Rent — 10 horas",                         unavailable: true, time: "1-10 min" },
+      { name: "Griffin-Unlocker Rent — 6 horas",                   unavailable: true, time: "1-10 min" },
+      { name: "Griffin Tool Premium Account Rent — 5 horas",       unavailable: true, time: "1-10 min" },
+      { name: "Hydra Tool Rent (Sin Dongle)",                       unavailable: true, time: "1-10 min" },
+      { name: "Kg Killer Tool Rent — 2 horas",                     unavailable: true, time: "1-10 min" },
+      { name: "MDM FIX TOOL RENT — 6 horas",                      unavailable: true, time: "1-10 min" },
+      { name: "MST MobileSea Service Tool Rent — 4 horas",         unavailable: true, time: "1-10 min" },
+      { name: "RTC Tool Rent — 6 horas",                           unavailable: true, time: "1-10 min" },
+      { name: "Samsung Tool KG Rent — 6 horas",                    unavailable: true, time: "1-10 min" },
+      { name: "Scorpion Tool Rent",                                 unavailable: true, time: "1-10 min" },
+      { name: "TFM Tool Rent — 6 horas",                           unavailable: true, time: "1-10 min" },
+      { name: "TR Tools Pro Rent Instant",                         unavailable: true, time: "1-10 min" },
+      { name: "TSM-Tools Rent — 10 horas",                         unavailable: true, time: "1-10 min" },
+      { name: "UAT PRO TOOL RENT — 3 horas",                       unavailable: true, time: "1-10 min" },
+      { name: "UMT Dongle Share — 1 hora",                         unavailable: true, time: "1-10 min" },
+      { name: "DFT Pro Tool Rent ⭐ — 48 horas",                   unavailable: true, time: "1-10 min" },
+    ]
+  },
+
+  // ── RENT SERVER 3 ─────────────────────────────────────────────────────────
+  {
+    cat: "Tools Server 3",
+    tag: "tag-tools",
+    icon: "S3",
+    img: "https://ui-avatars.com/api/?name=S3&background=06b6d4&color=080c14&bold=true&size=64",
+    services: [
+      { name: "Android Multitool Rent V1 — 2 horas",                usd: 1.36,  time: "1-10 min" },
+      { name: "AndroidWinTool Rent V1 — 48 horas",                  usd: 2.3,   time: "1-10 min" },
+      { name: "AnonySHU Rent V1 — 12 horas",                        usd: 3.2,   time: "1-10 min" },
+      { name: "APIZU MDM TOOL PRO Rent V1",                         usd: 2.8,   time: "1-10 min" },
+      { name: "Arab FRP Tool Rent V1 — 2 horas",                    usd: 1.36,  time: "1-10 min" },
+      { name: "CF Tools Rent V1 — 12 horas",                        usd: 1.28,  time: "1-10 min" },
+      { name: "CHEETAH TOOL RENT V1 — 4 horas",                     usd: 1,     time: "1-10 min" },
+      { name: "CP-Tools Rent — 12 horas",                           usd: 2.7,   time: "1-10 min" },
+      { name: "DFT Pro Tool Rent V1 — 48 horas",                    usd: 2.3,   time: "1-10 min" },
+      { name: "Griffin-Unlocker Tool Rent V1 — 6 horas",            usd: 1.963, time: "1-10 min" },
+      { name: "Griffin-Unlocker Premium Account Rent — 6 horas",    usd: 3.1,   time: "1-10 min" },
+      { name: "Hydra Tool Rent V2 (Sin Dongle)",                    usd: 2.3,   time: "1-10 min" },
+      { name: "Kg Killer Tool Rent V1 — 4 horas",                   usd: 0.605, time: "1-10 min" },
+      { name: "MDM FIX TOOL RENT V1 — 4 horas",                    usd: 2.6,   time: "1-10 min" },
+      { name: "MDM FIX TOOL RENT V1 — 6 horas",                    usd: 2.5,   time: "1-10 min" },
+      { name: "MRT TOOL RENT — 6 horas",                            usd: 1.1,   time: "1-10 min" },
+      { name: "MST MobileSea Service Tool V1 — 6 horas",            usd: 1.06,  time: "1-10 min" },
+      { name: "Phoenix Key Rent V1 — 2 horas",                      usd: 1.1,   time: "1-10 min" },
+      { name: "RTC Tool Rent V1 — 12 horas",                        usd: 2,     time: "1-10 min" },
+      { name: "Scorpion Tool Rent V1 — 48 horas",                   usd: 4.1,   time: "1-10 min" },
+      { name: "TFM Tool Rent V1 — 6 horas",                         usd: 1.42,  time: "1-10 min" },
+      { name: "TSM-Tools Rent V1 — 6 horas",                        unavailable: true, time: "1-10 min" },
+      { name: "UAT PRO TOOL RENT V1 — 3 horas",                     usd: 1.196, time: "1-10 min" },
+      { name: "UNLOCK TOOL RENT — 6 horas",                         usd: 1.3,   time: "1-10 min" },
+      { name: "UNLOCK TOOL RENT V1 — 6 horas",                      usd: 1.225, time: "1-10 min" },
+    ]
+  },
+
+  // ── RENT SERVER 4 ─────────────────────────────────────────────────────────
+  {
+    cat: "Tools Server 4",
+    tag: "tag-tools",
+    icon: "S4",
+    img: "https://ui-avatars.com/api/?name=S4&background=06b6d4&color=080c14&bold=true&size=64",
+    services: [
+      { name: "AndroidWinTool (AWT) Rent — 48 horas",              usd: 2.3,   time: "1-10 min" },
+      { name: "AnonySHU Rent — 10 horas",                          usd: 2.7,   time: "1-10 min" },
+      { name: "Borneo Schematics Rent — 24 horas",                  usd: 2.5,   time: "1-10 min" },
+      { name: "CHEETAH TOOL RENT — 4 horas",                       unavailable: true, time: "1-10 min" },
+      { name: "DFT Pro Tool Rent — 48 horas",                      usd: 2.38,  time: "1-10 min" },
+      { name: "Griffin-Unlocker Tool Rent — 6 horas",              usd: 2,     time: "1-10 min" },
+      { name: "Hydra Tool Digital Rent — 24 horas",                 usd: 1.6,   time: "1-10 min" },
+      { name: "MDM FIX TOOL RENT — 6 horas",                      usd: 2,     time: "1-10 min" },
+      { name: "RTC Tool — 6 horas",                                usd: 2.1,   time: "1-10 min" },
+      { name: "TFM Tool Rent — 5 horas",                           usd: 1.5,   time: "1-10 min" },
+      { name: "TR Tools Pro Rent Instant — 24 horas",              usd: 3.6,   time: "1-10 min" },
+      { name: "TSM-Tools Rent — 6 horas",                          usd: 1.4,   time: "1-10 min" },
+      { name: "Android Multitool Rent — 2 horas",                  usd: 1.5,   time: "1-10 min" },
+      { name: "Pragmafix Schematics Tool Rent — 24 horas",         unavailable: true, time: "1-10 min" },
+      { name: "UNLOCK TOOL RENT — 6 horas",                        usd: 1.35,  time: "1-10 min" },
+    ]
+  },
+
+  // ── RENT SERVER 5 ─────────────────────────────────────────────────────────
+  {
+    cat: "Tools Server 5",
+    tag: "tag-tools",
+    icon: "S5",
+    img: "https://ui-avatars.com/api/?name=S5&background=06b6d4&color=080c14&bold=true&size=64",
+    services: [
+      { name: "Android Multitool Rent — 2 horas",                  usd: 1,     time: "1-10 min" },
+      { name: "AndroidWinTool (AWT) Rent — 48 horas",              usd: 1.7,   time: "1-10 min" },
+      { name: "AnonySHU Rent — 8 horas",                           usd: 2,     time: "1-10 min" },
+      { name: "CF Tools Rent — 6 horas",                           usd: 1.1,   time: "1-10 min" },
+      { name: "CHEETAH TOOL RENT — 4 horas",                       usd: 1.4,   time: "1-10 min" },
+      { name: "DFT Pro Tool Rent — 48 horas",                      usd: 1.9,   time: "1-10 min" },
+      { name: "Griffin-Unlocker Tool Rent — 6 horas",              usd: 1.5,   time: "1-10 min" },
+      { name: "Hydra Tool Digital Rent — 3 horas",                  usd: 1.4,   time: "1-10 min" },
+      { name: "Kg Fix Tool Rent",                                   usd: 2,     time: "1-10 min" },
+      { name: "Kg Killer Tool Login Rent",                          usd: 1.2,   time: "1-10 min" },
+      { name: "MDM FIX TOOL RENT — 6 horas",                      usd: 1.7,   time: "1-10 min" },
+      { name: "MST MobileSea Service Tool",                         usd: 1.1,   time: "1-10 min" },
+      { name: "Pandora Digital Login — 48 horas",                   usd: 9,     time: "1-30 min" },
+      { name: "RTC Tool — 6 horas",                                usd: 1.5,   time: "1-10 min" },
+      { name: "Scorpion Tool Rent",                                 unavailable: true, time: "1-10 min" },
+      { name: "TFM Tool Rent",                                      usd: 1.15,  time: "1-10 min" },
+      { name: "TR Tool Pro Rent — 48 horas",                        usd: 1.8,   time: "1-10 min" },
+      { name: "TSM-Tools Rent — 6 horas",                          usd: 1.1,   time: "1-10 min" },
+      { name: "UAT Pro Login — 5 horas",                            usd: 1.1,   time: "1-10 min" },
+      { name: "UNLOCK TOOL RENT — 6 horas",                        usd: 1,     time: "1-10 min" },
+    ]
+  },
+
+  // ── RENT SERVER 6 ─────────────────────────────────────────────────────────
+  {
+    cat: "Tools Server 6",
+    tag: "tag-tools",
+    icon: "S6",
+    img: "https://ui-avatars.com/api/?name=S6&background=06b6d4&color=080c14&bold=true&size=64",
+    services: [
+      { name: "CF Tools Rent — 6 horas",                            usd: 1.507, time: "1-10 min" },
+      { name: "CHEETAH TOOL RENT — 4 horas",                       unavailable: true, time: "1-10 min" },
+      { name: "Unlock Tool Rent — 6 horas",                         usd: 1.355, time: "1-10 min" },
+      { name: "360 Tool Rent — 6 horas",                            usd: 2.3,   time: "1-10 min" },
+      { name: "AMT Android Multi Tool Rent — 3 horas",              usd: 1.32,  time: "1-10 min" },
+      { name: "AnonySHU Tool Rent — 12 horas",                      usd: 2.84,  time: "1-10 min" },
+      { name: "CP-Tools Rent — 12 horas",                           usd: 3.25,  time: "1-10 min" },
+      { name: "DFT Pro Tool Rent — 48 horas",                       usd: 2.472, time: "1-10 min" },
+      { name: "Griffin-Unlocker Premium Account Rent — 6 horas",    usd: 3.052, time: "1-10 min" },
+      { name: "Griffin-Unlocker Tool Rent — 6 horas",               usd: 1.972, time: "1-10 min" },
+      { name: "HS Pro Tool Rent — 6 horas",                         unavailable: true, time: "1-10 min" },
+      { name: "Hydra Tool Rent (Sin Dongle) — 24 horas",            usd: 1.615, time: "1-10 min" },
+      { name: "Kg Killer Tool Rent — 4 horas",                      usd: 1.625, time: "1-10 min" },
+      { name: "MDM FIX TOOL RENT — 6 horas",                       usd: 2.089, time: "1-10 min" },
+      { name: "MST MobileSea Service Tool — 6 horas",               usd: 1.36,  time: "1-10 min" },
+      { name: "SamsungTool.us KG Rent — 12 horas",                  unavailable: true, time: "1-10 min" },
+      { name: "TFM Tool Pro Rent — 6 horas",                        usd: 1.54,  time: "1-10 min" },
+      { name: "TR Tools Pro Rent Instant — 24 horas",               usd: 4,     time: "1-10 min" },
+      { name: "TR Tools Pro Rent Instant V2",                        usd: 4,     time: "1-10 min" },
+      { name: "TSM Tool Rent — 12 horas",                           usd: 1.42,  time: "1-10 min" },
+    ]
+  },
+
+];
